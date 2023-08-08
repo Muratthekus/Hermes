@@ -56,7 +56,7 @@ public class WiFiScanner public constructor(
     }
 
 
-    fun checkLocationPermission() {
+    private fun checkLocationPermission() {
         locationPermissionHandler.checkLocationPermission()
     }
 

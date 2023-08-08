@@ -4,9 +4,8 @@ import android.Manifest
 import androidx.activity.ComponentActivity
 import me.thekusch.messager.util.hasLocationPermission
 import me.thekusch.messager.util.isLocationEnabled
-import kotlin.properties.Delegates
 
-class LocationManager(
+internal class LocationManager(
     private val activity: ComponentActivity
 ) {
 
@@ -27,7 +26,7 @@ class LocationManager(
         activity.lifecycle.addObserver(locationRequestHandler)
     }
 
-    fun requestEnableLocation() {
+    private fun requestEnableLocation() {
         locationTracker.onRegisterActivityToEnableLocation = { it ->
             locationRequestHandler.requestEnableLocation.launch(it)
         }
