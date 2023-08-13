@@ -10,7 +10,7 @@ import com.vmadalin.easypermissions.EasyPermissions
 fun ComponentActivity.isLocationEnabled(): Boolean {
     val locationManager: LocationManager =
         this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+    return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && locationManager.isProviderEnabled(
         LocationManager.NETWORK_PROVIDER
     )
 }

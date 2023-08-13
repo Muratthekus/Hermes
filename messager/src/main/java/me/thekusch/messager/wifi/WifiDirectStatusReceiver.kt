@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.NetworkInfo
 import android.net.wifi.p2p.WifiP2pManager
+import android.util.Log
 
 internal class WiFiDirectStatusReceiver(
     private val manager: WifiP2pManager? = null,
@@ -14,19 +15,16 @@ internal class WiFiDirectStatusReceiver(
     private val connectionInfoListener: WifiP2pManager.ConnectionInfoListener? = null
 ) : BroadcastReceiver() {
 
-    constructor(): this(null,null,null,null)
-
-    @SuppressLint("MissingPermission")
     override fun onReceive(context: Context?, intent: Intent?) {
         when (intent?.action) {
             WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION -> {
                 // Check to see if Wi-Fi is enabled and notify appropriate activity
                 when (intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1)) {
                     WifiP2pManager.WIFI_P2P_STATE_ENABLED -> {
-                        // Wifi P2P is enabled
+                        Log.d("WIFISCANNER WIFI DIRECT","ENABLED")
                     }
                     else -> {
-                        // Wi-Fi P2P is not enabled
+                        Log.d("WIFISCANNER WIFI DIRECT","NOT ENABLED")
                     }
                 }
             }

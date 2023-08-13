@@ -1,12 +1,12 @@
 package me.thekusch.messager.wifi.permission
 
 import android.Manifest
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import me.thekusch.messager.util.hasLocationPermission
 import me.thekusch.messager.util.isLocationEnabled
 
 internal class LocationManager(
-    private val activity: ComponentActivity
+    private val activity: FragmentActivity
 ) {
 
     var isLocationAccessible: Boolean

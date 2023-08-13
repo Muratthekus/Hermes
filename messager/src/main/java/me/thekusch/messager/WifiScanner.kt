@@ -9,6 +9,7 @@ import android.net.wifi.p2p.*
 import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.fragment.app.FragmentActivity
 import me.thekusch.messager.controller.Client
 import me.thekusch.messager.controller.Server
 import me.thekusch.messager.wifi.WiFiDirectStatusReceiver
@@ -24,10 +25,9 @@ import me.thekusch.messager.wifi.permission.LocationManager
 import java.net.InetAddress
 import kotlin.properties.Delegates
 
-//TODO(murat) handle permission's all states
 @SuppressLint("MissingPermission")
 public class WiFiScanner public constructor(
-    activity: ComponentActivity
+    activity: FragmentActivity
 ) {
 
     private var isDiscoveringPeers: Boolean = false
@@ -45,19 +45,19 @@ public class WiFiScanner public constructor(
 
     public var onP2pStatusChange: ((Status<Any>) -> Unit)? = null
 
-    private var locationPermissionHandler: LocationManager
+    private var locationManager: LocationManager
 
 
     init {
         val wifiManager = Manager()
         wifiManager.init(activity)
-        locationPermissionHandler = LocationManager(activity)
+        locationManager = LocationManager(activity)
         checkLocationPermission()
     }
 
 
     private fun checkLocationPermission() {
-        locationPermissionHandler.checkLocationPermission()
+        locationManager.checkLocationPermission()
     }
 
     /*
@@ -69,7 +69,7 @@ public class WiFiScanner public constructor(
      * which we can listen for in a broadcast receiver to get a list of peers.
      */
     public fun discoverOthers() {
-        if (locationPermissionHandler.isLocationAccessible)
+        if (locationManager.isLocationAccessible.not())
             return
 
         if (isDiscoveringPeers.not()) {
@@ -96,7 +96,7 @@ public class WiFiScanner public constructor(
     }
 
     public fun connectToPeers(device: WifiDevice) {
-        if (locationPermissionHandler.isLocationAccessible.not())
+        if (locationManager.isLocationAccessible.not())
             return
 
         val config = WifiP2pConfig()
@@ -120,11 +120,11 @@ public class WiFiScanner public constructor(
 
     }
 
-    public fun stopReceiver(ctx: Context) {
-        ctx.unregisterReceiver(receiver)
+    public fun stopReceiver(activity: FragmentActivity) {
+        activity.unregisterReceiver(receiver)
     }
 
-    public fun startReceiver(ctx: Context) {
+    public fun startReceiver(activity: FragmentActivity) {
         val intentFilter = IntentFilter().apply {
             addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION)
             // Indicates a change in the list of available peers.
@@ -134,7 +134,7 @@ public class WiFiScanner public constructor(
             // Indicates this device's details have changed.
             addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION)
         }
-        ctx.registerReceiver(receiver, intentFilter)
+        activity.registerReceiver(receiver, intentFilter)
     }
 
     public fun sendMessage() {
@@ -148,17 +148,17 @@ public class WiFiScanner public constructor(
 
     private inner class Manager :
         WifiP2pManager.PeerListListener,
-        WifiP2pManager.ConnectionInfoListener {
+        WifiP2pManager.ConnectionInfoListener{
 
         fun init(ctx: Context) {
             manager = getSystemService(ctx, WifiP2pManager::class.java)!!
             channel = manager.initialize(ctx, Looper.getMainLooper(), null)
-            channel?.also { channel ->
+            channel?.let { channel ->
                 receiver = WiFiDirectStatusReceiver(
                     manager,
                     channel,
-                    peersChangedBlock = this@Manager,
-                    connectionInfoListener = this@Manager
+                    peersChangedBlock = this,
+                    connectionInfoListener = this
                 )
             }
         }
