@@ -12,7 +12,7 @@ import com.google.android.gms.location.LocationSettingsResponse
 import com.google.android.gms.location.SettingsClient
 import com.google.android.gms.tasks.Task
 
-internal class LocationRequestBuilder {
+internal class LocationEnableRequestBuilder {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 

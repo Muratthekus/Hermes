@@ -7,14 +7,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 
-internal class LocationRequestHandler(
+internal class LocationPermissionRequestHandler(
     private val registry: ActivityResultRegistry,
     private val onLocationGranted: () -> Unit,
 ): DefaultLifecycleObserver {
 
     lateinit var requestEnableLocation: ActivityResultLauncher<IntentSenderRequest>
 
-    lateinit var requestLocationPermissionLauncher: ActivityResultLauncher<String>
+    lateinit var requestLocationPermissionLauncher: ActivityResultLauncher<Array<String>>
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
@@ -26,10 +26,11 @@ internal class LocationRequestHandler(
         requestLocationPermissionLauncher =
             registry.register(
                 "key2", owner,
-                ActivityResultContracts.RequestPermission()
-            ) { isGranted ->
-                if (isGranted)
+                ActivityResultContracts.RequestMultiplePermissions()
+            ) { permissions ->
+                repeat(permissions.toList().size) {
                     onLocationGranted()
+                }
             }
     }
 }
