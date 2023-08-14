@@ -6,11 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import me.thekusch.hermes.databinding.FragmentBlankBinding
-import me.thekusch.messager.WiFiScanner
+import me.thekusch.messager.Hermes
 
 class BlankFragment : Fragment() {
 
-    lateinit var scanner: WiFiScanner
+    lateinit var scanner: Hermes
     lateinit var binding: FragmentBlankBinding
 
     override fun onCreateView(
@@ -26,8 +26,7 @@ class BlankFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        scanner = WiFiScanner(requireActivity())
-        scanner.checkBluetoothPermissions()
+        scanner = Hermes(requireActivity())
 
     }
 

@@ -1,4 +1,4 @@
-package me.thekusch.messager.wifi.permission
+package me.thekusch.messager.permission
 
 import android.app.Activity
 import android.content.IntentSender

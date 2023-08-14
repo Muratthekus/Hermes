@@ -1,4 +1,4 @@
-package me.thekusch.messager.wifi.permission
+package me.thekusch.messager.permission
 
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry

@@ -1,4 +1,4 @@
-package me.thekusch.messager.wifi.permission
+package me.thekusch.messager.permission
 
 import android.Manifest
 import android.os.Build
@@ -30,7 +30,7 @@ internal class BluetoothManager(
         activity.lifecycle.addObserver(permissionRequestHandler)
     }
 
-    fun getBluetoothPermissionList(): Array<String> {
+    private fun getBluetoothPermissionList(): Array<String> {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             arrayOf(
                 Manifest.permission.BLUETOOTH_CONNECT,
