@@ -1,4 +1,4 @@
-package me.thekusch.messager.wifi.permission
+package me.thekusch.messager.permission
 
 import android.Manifest
 import androidx.fragment.app.FragmentActivity
@@ -14,23 +14,23 @@ internal class LocationManager(
             return activity.hasLocationPermission() && activity.isLocationEnabled()
         }
 
-    private var locationTracker = LocationRequestBuilder()
-    private var locationRequestHandler: LocationRequestHandler
+    private var locationEnableRequestBuilder = LocationEnableRequestBuilder()
+    private var locationPermissionRequestHandler: LocationPermissionRequestHandler
 
     init {
         isLocationAccessible = activity.hasLocationPermission() && activity.isLocationEnabled()
-        locationTracker.init(activity)
-        locationRequestHandler = LocationRequestHandler(activity.activityResultRegistry) {
+        locationEnableRequestBuilder.init(activity)
+        locationPermissionRequestHandler = LocationPermissionRequestHandler(activity.activityResultRegistry) {
             requestEnableLocation()
         }
-        activity.lifecycle.addObserver(locationRequestHandler)
+        activity.lifecycle.addObserver(locationPermissionRequestHandler)
     }
 
     private fun requestEnableLocation() {
-        locationTracker.onRegisterActivityToEnableLocation = { it ->
-            locationRequestHandler.requestEnableLocation.launch(it)
+        locationEnableRequestBuilder.onRegisterActivityToEnableLocation = { it ->
+            locationPermissionRequestHandler.requestEnableLocation.launch(it)
         }
-        locationTracker.requestToEnableLocation(activity) {
+        locationEnableRequestBuilder.requestToEnableLocation(activity) {
             // todo(murat) handle error
         }
     }
@@ -44,15 +44,15 @@ internal class LocationManager(
             }
 
             else -> {
-                locationRequestHandler
+                locationPermissionRequestHandler
                     .requestLocationPermissionLauncher.launch(
-                        LOCATION_PERM
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        )
                     )
             }
         }
     }
 
-    companion object {
-        private const val LOCATION_PERM = Manifest.permission.ACCESS_FINE_LOCATION
-    }
 }
