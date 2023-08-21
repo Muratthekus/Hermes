@@ -30,6 +30,11 @@ internal fun ComponentActivity.hasBluetoothScanPermission() = EasyPermissions.ha
     Manifest.permission.BLUETOOTH_SCAN
 )
 
+internal fun ComponentActivity.hasAccessWifiStatePermission() = EasyPermissions.hasPermissions(
+    this,
+    Manifest.permission.ACCESS_WIFI_STATE
+)
+
 internal fun Context.hasLocationPermission() = EasyPermissions.hasPermissions(
     this,
     Manifest.permission.ACCESS_FINE_LOCATION

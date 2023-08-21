@@ -24,11 +24,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        languageVersion = "1.8"
         freeCompilerArgs += listOf("-Xexplicit-api=warning")
     }
 }
@@ -43,7 +43,9 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
-    implementation("com.google.android.gms:play-services:12.0.1")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-nearby:18.7.0")
     implementation("com.vmadalin:easypermissions-ktx:1.0.0")
     implementation("androidx.activity:activity-ktx:1.7.2")
+    implementation("androidx.security:security-crypto:1.0.0")
 }
