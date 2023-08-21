@@ -27,14 +27,17 @@ android {
         }
     }
     buildFeatures {
-        viewBinding = true
+        compose = true
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.4.0"
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        languageVersion = "1.8"
     }
 }
 
@@ -47,5 +50,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    implementation("androidx.compose.ui:ui:1.4.0")
+    implementation("androidx.compose.material:material:1.4.0")
     implementation(project(":messager"))
 }

@@ -7,7 +7,7 @@ import android.location.LocationManager
 import androidx.activity.ComponentActivity
 import com.vmadalin.easypermissions.EasyPermissions
 
-fun ComponentActivity.isLocationEnabled(): Boolean {
+internal fun ComponentActivity.isLocationEnabled(): Boolean {
     val locationManager: LocationManager =
         this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && locationManager.isProviderEnabled(
@@ -15,7 +15,38 @@ fun ComponentActivity.isLocationEnabled(): Boolean {
     )
 }
 
-fun Context.hasLocationPermission() = EasyPermissions.hasPermissions(
+internal fun ComponentActivity.hasBluetoothAdvertisePermission() = EasyPermissions.hasPermissions(
+    this,
+    Manifest.permission.BLUETOOTH_ADVERTISE
+)
+
+internal fun ComponentActivity.hasBluetoothConnectPermission() = EasyPermissions.hasPermissions(
+    this,
+    Manifest.permission.BLUETOOTH_CONNECT
+)
+
+internal fun ComponentActivity.hasBluetoothScanPermission() = EasyPermissions.hasPermissions(
+    this,
+    Manifest.permission.BLUETOOTH_SCAN
+)
+
+internal fun ComponentActivity.hasAccessWifiStatePermission() = EasyPermissions.hasPermissions(
+    this,
+    Manifest.permission.ACCESS_WIFI_STATE
+)
+
+internal fun Context.hasLocationPermission() = EasyPermissions.hasPermissions(
     this,
     Manifest.permission.ACCESS_FINE_LOCATION
 )
+
+internal fun ComponentActivity.hasBluetoothPermissions(): Boolean {
+    return hasBluetoothConnectPermission()
+            && hasBluetoothScanPermission()
+            && hasBluetoothAdvertisePermission()
+}
+
+internal fun ComponentActivity.hasAllRequiredPermission(): Boolean {
+    return hasBluetoothConnectPermission() && hasLocationPermission()
+            && hasBluetoothScanPermission() && hasBluetoothAdvertisePermission()
+}
