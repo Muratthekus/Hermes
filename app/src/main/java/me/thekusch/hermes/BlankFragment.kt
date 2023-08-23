@@ -55,19 +55,22 @@ class BlankFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val hermes = Hermes(requireActivity()) {
-            val snackbar = Snackbar.make(composeView, "All permissions should be granted", Snackbar.LENGTH_LONG);
-            snackbar.setAction("Settings") {
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                val uri =
-                    Uri.fromParts("package", requireContext().packageName, null)
-                intent.data = uri
-                startActivity(intent)
-            }
-        }
+        val hermes = Hermes(requireActivity(),::onPermissionNotGranted)
         composeView.setContent {
             HomeScreen(hermes = hermes)
         }
+    }
+
+    private fun onPermissionNotGranted() {
+        val snackbar = Snackbar.make(composeView, "All permissions should be granted", Snackbar.LENGTH_LONG);
+        snackbar.setAction("Settings") {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri =
+                Uri.fromParts("package", requireContext().packageName, null)
+            intent.data = uri
+            startActivity(intent)
+        }
+        snackbar.show()
     }
 
     @Composable
