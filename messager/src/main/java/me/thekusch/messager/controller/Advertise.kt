@@ -28,7 +28,7 @@ internal class Advertise {
 
         connectionsClient.stopDiscovery()
 
-        listener.invoke(AdvertiseStatus.Advertising)
+        listener.invoke(BaseStatus.Loading)
 
         val advertisingOptions = AdvertisingOptions
             .Builder()

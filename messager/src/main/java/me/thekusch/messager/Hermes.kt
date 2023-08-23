@@ -9,6 +9,7 @@ import me.thekusch.messager.datasource.LocalDataSource
 import me.thekusch.messager.permission.BluetoothManager
 import me.thekusch.messager.permission.LocationManager
 import me.thekusch.messager.permission.WifiManager
+import me.thekusch.messager.util.Role
 
 
 internal typealias DiscoveryStatusListener = ((BaseStatus) -> Unit)
@@ -19,7 +20,7 @@ public class Hermes public constructor(
     permissionNotGrantedHandler: () -> Unit
 ) {
 
-    private var isServer: Boolean = false
+    private var role: Role? = null
 
     public var discoveryStatusListener: DiscoveryStatusListener? = null
     public var advertiseStatusListener: AdvertiseStatusListener? = null
@@ -44,19 +45,45 @@ public class Hermes public constructor(
     public fun acceptConnection(
         endpointId: String,
         context: Context
-    ) = advertise.acceptConnectionRequest(context, endpointId)
+    ): Unit = when (role) {
+        Role.ADVERTISE -> {
+            advertise.acceptConnectionRequest(context, endpointId)
+        }
+
+        Role.DISCOVER -> {
+            discovery.acceptConnectionRequest(context, endpointId)
+        }
+
+        else -> {
+            // no-op
+        }
+    }
 
 
     public fun rejectConnection(
         endpointId: String,
         context: Context
-    ) = advertise.rejectConnectionRequest(context, endpointId)
+    ): Unit = when (role) {
+        Role.ADVERTISE -> {
+            advertise.rejectConnectionRequest(context, endpointId)
+        }
+
+        Role.DISCOVER -> {
+            discovery.rejectConnectionRequest(context, endpointId)
+        }
+
+        else -> {
+            // no-op
+        }
+
+    }
 
     public fun startAdvertising() {
         requireNotNull(advertiseStatusListener) {
             "a value should have been set to listener"
         }
         advertise.listener = advertiseStatusListener!!
+        role = Role.ADVERTISE
         advertise.startAdvertising(activity)
     }
 
@@ -64,8 +91,8 @@ public class Hermes public constructor(
         requireNotNull(discoveryStatusListener) {
             "a value should have been set to listener"
         }
-
         discovery.listener = discoveryStatusListener!!
+        role = Role.DISCOVER
         discovery.startDiscovery(activity)
     }
 

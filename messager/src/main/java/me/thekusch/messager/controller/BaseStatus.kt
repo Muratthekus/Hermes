@@ -3,7 +3,9 @@ package me.thekusch.messager.controller
 
 public sealed interface BaseStatus{
 
-    object Initial: BaseStatus
+    public object Initial: BaseStatus
+
+    public object Loading: BaseStatus
 
     public data class ConnectionInitiated(
         val endpointId: String,

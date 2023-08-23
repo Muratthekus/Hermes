@@ -24,11 +24,30 @@ internal class Discovery {
     lateinit var listener: DiscoveryStatusListener
     private val localDataSource = LocalDataSource
 
+
+    internal fun acceptConnectionRequest(
+        context: Context,
+        endpointId: String
+    ) {
+
+        Nearby.getConnectionsClient(context)
+            .acceptConnection(endpointId, getPayloadCallBack())
+    }
+
+    internal fun rejectConnectionRequest(
+        context: Context,
+        endpointId: String
+    ) {
+        Nearby.getConnectionsClient(context)
+            .rejectConnection(endpointId)
+    }
+
     internal fun startDiscovery(
         context: Context
     ) {
-        val connectionsClient = Nearby.getConnectionsClient(context)
+        listener.invoke(BaseStatus.Loading)
 
+        val connectionsClient = Nearby.getConnectionsClient(context)
         connectionsClient.stopAdvertising()
         val discoveryOptions = DiscoveryOptions.Builder().setStrategy(strategy).build()
         connectionsClient
@@ -88,8 +107,6 @@ internal class Discovery {
                         endpointId, connectionInfo.endpointName
                     )
                 )
-                /*                Nearby.getConnectionsClient(context)
-                                    .acceptConnection(endpointId, getPayloadCallBack())*/
             }
 
             override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {

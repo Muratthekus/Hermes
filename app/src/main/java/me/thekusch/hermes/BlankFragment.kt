@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -151,6 +153,12 @@ class BlankFragment : Fragment() {
         }
 
         when (advertiseStatus) {
+            is BaseStatus.Loading -> {
+                Box(Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(Modifier.align(Alignment.Center))
+                }
+            }
+
             is AdvertiseStatus.FinishedSuccessfully -> {
                 Toast.makeText(context, "Advertise started successfully", Toast.LENGTH_SHORT)
                     .show()
@@ -205,6 +213,12 @@ class BlankFragment : Fragment() {
         }
 
         when (discoveryStatus) {
+            is BaseStatus.Loading -> {
+                Box(Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(Modifier.align(Alignment.Center))
+                }
+            }
+
             is DiscoveryStatus.DiscoveryStarted -> {
                 Toast.makeText(context, "Discovery started successfully", Toast.LENGTH_SHORT)
                     .show()
@@ -222,7 +236,7 @@ class BlankFragment : Fragment() {
                 Toast.makeText(context, "Geldi bi şeyler", Toast.LENGTH_SHORT).show()
                 Log.d(
                     "HERMES",
-                    "${(discoveryStatus as DiscoveryStatus.EndpointFound).endpointName}"
+                    (discoveryStatus as DiscoveryStatus.EndpointFound).endpointName
                 )
             }
 
