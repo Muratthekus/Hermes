@@ -9,8 +9,11 @@ import androidx.lifecycle.LifecycleOwner
 
 internal class LocationPermissionRequestHandler(
     private val registry: ActivityResultRegistry,
-    private val onLocationGranted: () -> Unit,
+    private val onPermissionResult: (Boolean) -> Unit,
 ): DefaultLifecycleObserver {
+
+    private val requestEnableLocationKey = "requestEnableLocationKey"
+    private val requestLocationPermission = "requestLocationPermission"
 
     lateinit var requestEnableLocation: ActivityResultLauncher<IntentSenderRequest>
 
@@ -19,18 +22,22 @@ internal class LocationPermissionRequestHandler(
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
         requestEnableLocation = registry.register(
-            "key1", owner,
+            requestEnableLocationKey, owner,
             ActivityResultContracts.StartIntentSenderForResult()
         ) {}
 
         requestLocationPermissionLauncher =
             registry.register(
-                "key2", owner,
+                requestLocationPermission, owner,
                 ActivityResultContracts.RequestMultiplePermissions()
             ) { permissions ->
-                repeat(permissions.toList().size) {
-                    onLocationGranted()
+                var isAllPermitted: Boolean = false
+                if (permissions.toList().isEmpty()) {
+                    isAllPermitted = true
+                    return@register
                 }
+                isAllPermitted = permissions.getOrDefault(requestLocationPermission,false)
+                onPermissionResult(isAllPermitted)
             }
     }
 }

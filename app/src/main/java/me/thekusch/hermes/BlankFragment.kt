@@ -1,8 +1,10 @@
 package me.thekusch.hermes
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +19,9 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,10 +31,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.Fragment
+import com.google.android.material.snackbar.Snackbar
 import me.thekusch.messager.Hermes
 import me.thekusch.messager.controller.AdvertiseStatus
 import me.thekusch.messager.controller.BaseStatus
 import me.thekusch.messager.controller.DiscoveryStatus
+
 
 class BlankFragment : Fragment() {
 
@@ -48,7 +55,16 @@ class BlankFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val hermes = Hermes(requireActivity())
+        val hermes = Hermes(requireActivity()) {
+            val snackbar = Snackbar.make(composeView, "All permissions should be granted", Snackbar.LENGTH_LONG);
+            snackbar.setAction("Settings") {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri =
+                    Uri.fromParts("package", requireContext().packageName, null)
+                intent.data = uri
+                startActivity(intent)
+            }
+        }
         composeView.setContent {
             HomeScreen(hermes = hermes)
         }
@@ -64,48 +80,59 @@ class BlankFragment : Fragment() {
         var isUserNameSaved by remember {
             mutableStateOf(false)
         }
-
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
-                readOnly = isUserNameSaved,
-                placeholder = { "please enter a username" },
-            )
-            Button(onClick = {
-                hermes.setUserName(username)
-                isUserNameSaved = true
-            }, enabled = isUserNameSaved.not()) {
-
-                val text = if (isUserNameSaved)
-                    username
-                else "Save username"
-                Text(text = text)
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text("Hermes")
+                    }
+                )
             }
-
-            Row(
+        ) { paddingValues ->
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(horizontal = 8.dp, vertical = 16.dp)
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Button(enabled = isUserNameSaved,
-                    onClick = { hermes.startAdvertising() }) {
-                    Text(text = "Start Advertising")
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    readOnly = isUserNameSaved,
+                    placeholder = { "please enter a username" },
+                )
+                Button(onClick = {
+                    hermes.setUserName(username)
+                    isUserNameSaved = true
+                }, enabled = isUserNameSaved.not()) {
+
+                    val text = if (isUserNameSaved)
+                        username
+                    else "Save username"
+                    Text(text = text)
                 }
-                Button(enabled = isUserNameSaved,
-                    onClick = { hermes.startDiscovery() }) {
-                    Text(text = "Start Discovery")
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(horizontal = 8.dp, vertical = 16.dp)
+                ) {
+                    Button(enabled = isUserNameSaved,
+                        onClick = { hermes.startAdvertising() }) {
+                        Text(text = "Start Advertising")
+                    }
+                    Button(enabled = isUserNameSaved,
+                        onClick = { hermes.startDiscovery() }) {
+                        Text(text = "Start Discovery")
+                    }
                 }
+
+                AdvertiseFactory(hermes)
+
+                DiscoveryFactory(hermes)
             }
-
-            AdvertiseFactory(hermes)
-
-            DiscoveryFactory(hermes)
         }
     }
 
@@ -184,13 +211,16 @@ class BlankFragment : Fragment() {
                 Toast.makeText(context, "Discovery failed", Toast.LENGTH_SHORT).show()
                 Log.e(
                     "HERMES",
-                     "error couldn't fetch"
+                    "error couldn't fetch"
                 )
             }
 
             is DiscoveryStatus.EndpointFound -> {
                 Toast.makeText(context, "Geldi bi şeyler", Toast.LENGTH_SHORT).show()
-                Log.d("HERMES","${(discoveryStatus as DiscoveryStatus.EndpointFound).endpointName}")
+                Log.d(
+                    "HERMES",
+                    "${(discoveryStatus as DiscoveryStatus.EndpointFound).endpointName}"
+                )
             }
 
             is DiscoveryStatus.EndpointLost -> {

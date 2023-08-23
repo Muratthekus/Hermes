@@ -9,10 +9,11 @@ import me.thekusch.messager.util.hasBluetoothPermissions
 import me.thekusch.messager.util.hasBluetoothScanPermission
 
 internal class BluetoothManager(
-    private val activity: FragmentActivity
+    private val activity: FragmentActivity,
+    permissionNotGrantedHandler: () -> Unit
 ) {
 
-    var isAllBluetoothPermissionsGranted: Boolean
+    private var isAllBluetoothPermissionsGranted: Boolean
         get() {
             return activity.hasBluetoothScanPermission()
                     && activity.hasBluetoothAdvertisePermission()
@@ -26,7 +27,10 @@ internal class BluetoothManager(
                 && activity.hasBluetoothConnectPermission()
 
         permissionRequestHandler =
-            BluetoothPermissionRequestHandler(activity.activityResultRegistry)
+            BluetoothPermissionRequestHandler(
+                activity.activityResultRegistry,
+                permissionNotGrantedHandler
+            )
         activity.lifecycle.addObserver(permissionRequestHandler)
     }
 

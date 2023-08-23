@@ -5,7 +5,8 @@ import androidx.fragment.app.FragmentActivity
 import me.thekusch.messager.util.hasAccessWifiStatePermission
 
 internal class WifiManager(
-    private val activity: FragmentActivity
+    private val activity: FragmentActivity,
+    permissionNotGrantedHandler: () -> Unit
 ) {
 
     var isWifiPermissionGranted: Boolean
@@ -17,7 +18,10 @@ internal class WifiManager(
 
     init {
         isWifiPermissionGranted = activity.hasAccessWifiStatePermission()
-        permissionRequestHandler = WifiPermissionRequestHandler(activity.activityResultRegistry)
+        permissionRequestHandler = WifiPermissionRequestHandler(
+            activity.activityResultRegistry,
+            permissionNotGrantedHandler
+        )
         activity.lifecycle.addObserver(permissionRequestHandler)
     }
 

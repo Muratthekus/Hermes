@@ -6,7 +6,8 @@ import me.thekusch.messager.util.hasLocationPermission
 import me.thekusch.messager.util.isLocationEnabled
 
 internal class LocationManager(
-    private val activity: FragmentActivity
+    private val activity: FragmentActivity,
+    permissionNotGrantedHandler: () -> Unit
 ) {
 
     var isLocationAccessible: Boolean
@@ -20,9 +21,13 @@ internal class LocationManager(
     init {
         isLocationAccessible = activity.hasLocationPermission() && activity.isLocationEnabled()
         locationEnableRequestBuilder.init(activity)
-        locationPermissionRequestHandler = LocationPermissionRequestHandler(activity.activityResultRegistry) {
-            requestEnableLocation()
-        }
+        locationPermissionRequestHandler =
+            LocationPermissionRequestHandler(activity.activityResultRegistry) { isAllPermitted ->
+                if (isAllPermitted)
+                    requestEnableLocation()
+                else
+                    permissionNotGrantedHandler()
+            }
         activity.lifecycle.addObserver(locationPermissionRequestHandler)
     }
 

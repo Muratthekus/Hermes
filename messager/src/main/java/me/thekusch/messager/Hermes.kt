@@ -11,20 +11,21 @@ import me.thekusch.messager.permission.LocationManager
 import me.thekusch.messager.permission.WifiManager
 
 
-//TODO(murat) handle 'Never Ask Again'
 internal typealias DiscoveryStatusListener = ((BaseStatus) -> Unit)
 internal typealias AdvertiseStatusListener = ((BaseStatus) -> Unit)
+
 public class Hermes public constructor(
-    private val activity: FragmentActivity
+    private val activity: FragmentActivity,
+    permissionNotGrantedHandler: () -> Unit
 ) {
 
     private var isServer: Boolean = false
 
     public var discoveryStatusListener: DiscoveryStatusListener? = null
     public var advertiseStatusListener: AdvertiseStatusListener? = null
-    private var locationManager = LocationManager(activity)
-    private var bluetoothManager = BluetoothManager(activity)
-    private var wifiManager = WifiManager(activity)
+    private var locationManager = LocationManager(activity, permissionNotGrantedHandler)
+    private var bluetoothManager = BluetoothManager(activity, permissionNotGrantedHandler)
+    private var wifiManager = WifiManager(activity, permissionNotGrantedHandler)
     private var advertise = Advertise()
     private var discovery = Discovery()
     private val localDataSource = LocalDataSource
@@ -55,9 +56,6 @@ public class Hermes public constructor(
         requireNotNull(advertiseStatusListener) {
             "a value should have been set to listener"
         }
-        requireNotNull(localDataSource.username) {
-            "username value can not be empty"
-        }
         advertise.listener = advertiseStatusListener!!
         advertise.startAdvertising(activity)
     }
@@ -67,9 +65,6 @@ public class Hermes public constructor(
             "a value should have been set to listener"
         }
 
-        requireNotNull(localDataSource.username) {
-            "username value can not be empty"
-        }
         discovery.listener = discoveryStatusListener!!
         discovery.startDiscovery(activity)
     }

@@ -7,19 +7,22 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 
 internal class WifiPermissionRequestHandler(
-    private val registry: ActivityResultRegistry
+    private val registry: ActivityResultRegistry,
+    private val onNotGranted: () -> Unit
 ) : DefaultLifecycleObserver {
 
+    private val accessWifiStatePermission = "accessWifiStatePermission"
     lateinit var requestAccessWifiStatePermissionLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
         requestAccessWifiStatePermissionLauncher =
             registry.register(
-                "access-wifi-state-permissions", owner,
+                accessWifiStatePermission, owner,
                 ActivityResultContracts.RequestPermission()
-            ) {
-                //TODO(murat) handle never ask again
+            ) { isGranted ->
+                if (isGranted.not())
+                    onNotGranted()
             }
     }
 }
