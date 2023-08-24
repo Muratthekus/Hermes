@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.AlertDialog
@@ -40,7 +41,6 @@ import me.thekusch.messager.controller.AdvertiseStatus
 import me.thekusch.messager.controller.BaseStatus
 import me.thekusch.messager.controller.DiscoveryStatus
 
-
 class BlankFragment : Fragment() {
 
     private lateinit var composeView: ComposeView
@@ -57,14 +57,15 @@ class BlankFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val hermes = Hermes(requireActivity(),::onPermissionNotGranted)
+        val hermes = Hermes(requireActivity(), ::onPermissionNotGranted)
         composeView.setContent {
             HomeScreen(hermes = hermes)
         }
     }
 
     private fun onPermissionNotGranted() {
-        val snackbar = Snackbar.make(composeView, "All permissions should be granted", Snackbar.LENGTH_LONG);
+        val snackbar =
+            Snackbar.make(composeView, "All permissions should be granted", Snackbar.LENGTH_LONG);
         snackbar.setAction("Settings") {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             val uri =
@@ -85,6 +86,7 @@ class BlankFragment : Fragment() {
         var isUserNameSaved by remember {
             mutableStateOf(false)
         }
+
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -121,7 +123,7 @@ class BlankFragment : Fragment() {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight()
+                        .height(80.dp)
                         .padding(horizontal = 8.dp, vertical = 16.dp)
                 ) {
                     Button(enabled = isUserNameSaved,
@@ -134,6 +136,7 @@ class BlankFragment : Fragment() {
                     }
                 }
 
+
                 AdvertiseFactory(hermes)
 
                 DiscoveryFactory(hermes)
@@ -143,7 +146,7 @@ class BlankFragment : Fragment() {
 
     @Composable
     fun AdvertiseFactory(
-        hermes: Hermes
+        hermes: Hermes,
     ) {
         var advertiseStatus: BaseStatus by remember {
             mutableStateOf(BaseStatus.Initial)
@@ -255,6 +258,11 @@ class BlankFragment : Fragment() {
                     (discoveryStatus as BaseStatus.ConnectionResultStatus)
                         .result, Toast.LENGTH_SHORT
                 ).show()
+                if ((discoveryStatus as BaseStatus.ConnectionResultStatus).result ==
+                    BaseStatus.ConnectionResultStatus.CONNECTED
+                ) {
+                    Chat()
+                }
             }
 
             is BaseStatus.Disconnected -> {
@@ -274,6 +282,11 @@ class BlankFragment : Fragment() {
             }
 
         }
+    }
+
+    @Composable
+    fun Chat() {
+
     }
 
     @Composable
