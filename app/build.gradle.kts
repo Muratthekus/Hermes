@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -37,7 +39,7 @@ android {
         kotlinCompilerExtensionVersion = "1.4.0"
     }
     kotlinOptions {
-        languageVersion = "1.8"
+        jvmTarget = "17"
     }
 }
 
@@ -53,4 +55,17 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.4.0")
     implementation("androidx.compose.material:material:1.4.0")
     implementation(project(":messager"))
+    implementation("com.google.dagger:hilt-android:2.46.1")
+    kapt("com.google.dagger:hilt-compiler:2.44")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.4.3")
+    debugImplementation("androidx.compose.ui:ui-tooling-preview:1.4.3")
+
+    implementation("io.github.jan-tennert.supabase:gotrue-kt:1.2.0")
+    implementation("io.ktor:ktor-client-okhttp:2.2.0")
+    implementation("com.google.accompanist:accompanist-pager:0.24.13-rc")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+    implementation("androidx.fragment:fragment-ktx:1.6.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
 }

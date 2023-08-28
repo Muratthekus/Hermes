@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">Hermes</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="intro_item_1_text">Connect with people without centralized connections</string>
+    <string name="intro_item_2_text">Hermes uses Bluetooth, Wifi and Location to build connection</string>
+    <string name="intro_item_3_text">Everything happen in local. All your data will be kept in your device</string>
+    <string name="intro_item_4_text">Welcome to Hermes</string>
+    <string name="intro_page_button">Start Messaging</string>
+    <string name="verification_fragment_title">Enter Your Email Address</string>
+    <string name="verification_fragment_subtitle">Please confirm your email address before further continue</string>
+    <string name="verification_fragment_email_hint">xxxx@gmail.com</string>
 </resources>
