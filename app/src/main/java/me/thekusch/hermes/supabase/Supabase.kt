@@ -19,21 +19,21 @@ class Supabase @Inject constructor(
         }
 
     suspend fun signupUser(
-        email: String = "vasviye55@gmail.com",
-        password: String = "maviDino@512"
+        email: String,
+        password: String
     ) {
-        goTrue?.signUpWith(Email) {
+        goTrue.signUpWith(Email) {
             this.email = email
             this.password = password
         }
     }
 
     suspend fun verifyEmailOtp(
-        email: String = "vasviye55@gmail.com",
-        token: String = "885049"
+        email: String,
+        token: String
     ): Boolean {
         return try {
-            goTrue?.verifyEmailOtp(
+            goTrue.verifyEmailOtp(
                 type = OtpType.Email.SIGNUP,
                 email = email,
                 token = token

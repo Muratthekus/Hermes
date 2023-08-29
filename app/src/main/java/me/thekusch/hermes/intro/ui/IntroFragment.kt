@@ -143,9 +143,9 @@ class IntroFragment : Fragment() {
             ) {
                 Button(
                     modifier = Modifier
+                        .padding(horizontal = 24.dp, vertical = 18.dp)
                         .fillMaxWidth()
-                        .height(80.dp)
-                        .padding(horizontal = 24.dp, vertical = 18.dp),
+                        .height(52.dp),
                     shape = RoundedCornerShape(30.dp),
                     onClick = {
                         activity?.supportFragmentManager?.beginTransaction()

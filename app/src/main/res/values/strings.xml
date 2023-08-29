@@ -8,4 +8,6 @@
     <string name="verification_fragment_title">Enter Your Email Address</string>
     <string name="verification_fragment_subtitle">Please confirm your email address before further continue</string>
     <string name="verification_fragment_email_hint">xxxx@gmail.com</string>
+    <string name="verification_fragment_password_hint">your password</string>
+    <string name="verification_fragment_button">Continue</string>
 </resources>

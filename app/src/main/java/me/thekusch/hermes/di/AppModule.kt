@@ -15,7 +15,7 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideSupaBase(): SupabaseClient? {
+    fun provideSupaBase(): SupabaseClient {
         return createSupabaseClient(
             supabaseUrl = "https://bqszxhitbuyqkbjgjrpr.supabase.co",
             supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxc3p4aGl0YnV5cWtiamdqcnByIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTMwNTM4NTcsImV4cCI6MjAwODYyOTg1N30.mOs4OXa1W5pqKEH3XgVfu1SVpBcrEBzFE9K2-rcb-HU"
