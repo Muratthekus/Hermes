@@ -13,4 +13,7 @@
     <string name="otp_fragment_title">Enter Your Code</string>
     <string name="otp_fragment_subtitle">We have sent you an Email with the code to %s</string>
     <string name="otp_fragment_resend_title">Resend Code</string>
+    <string name="register_screen_title">One last step</string>
+    <string name="register_username_title">Username (required)</string>
+    <string name="register_button">Finish</string>
 </resources>

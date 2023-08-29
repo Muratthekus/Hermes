@@ -1,4 +1,4 @@
-package me.thekusch.hermes.signup.ui
+package me.thekusch.hermes.signup.ui.otp
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -111,6 +111,10 @@ class OtpInputScreen : Fragment() {
 
                 if (uiState == OtpInputUiState.Loading)
                     CircularProgressIndicator()
+
+                if (uiState == OtpInputUiState.Success) {
+
+                }
 
                 Column(
                     modifier = Modifier

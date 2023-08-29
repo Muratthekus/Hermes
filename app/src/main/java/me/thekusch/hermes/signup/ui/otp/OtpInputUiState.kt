@@ -1,4 +1,4 @@
-package me.thekusch.hermes.signup.ui
+package me.thekusch.hermes.signup.ui.otp
 
 sealed class OtpInputUiState {
 
