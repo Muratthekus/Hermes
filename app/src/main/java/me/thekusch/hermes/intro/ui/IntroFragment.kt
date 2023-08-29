@@ -5,8 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -43,7 +41,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import me.thekusch.hermes.R
 import me.thekusch.hermes.ui.theme.HermesTheme
 import me.thekusch.hermes.util.widget.HorizontalPager
-import me.thekusch.hermes.verification.VerificationFragment
+import me.thekusch.hermes.signup.ui.SignUpInfoScreen
 
 @ExperimentalPagerApi
 @AndroidEntryPoint
@@ -149,7 +147,7 @@ class IntroFragment : Fragment() {
                     shape = RoundedCornerShape(30.dp),
                     onClick = {
                         activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, VerificationFragment.newInstance())
+                            ?.replace(R.id.container, SignUpInfoScreen.newInstance())
                             ?.addToBackStack(null)
                             ?.commit();
                     }) {

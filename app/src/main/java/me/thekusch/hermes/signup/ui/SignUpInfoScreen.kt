@@ -1,4 +1,4 @@
-package me.thekusch.hermes.verification
+package me.thekusch.hermes.signup.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -44,14 +44,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.thekusch.hermes.R
 import me.thekusch.hermes.supabase.Supabase
-import me.thekusch.hermes.ui.theme.Black
 import me.thekusch.hermes.ui.theme.HermesTheme
 import me.thekusch.hermes.util.widget.getFieldIconTint
 import me.thekusch.hermes.util.widget.provideTextFieldColors
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class VerificationFragment : Fragment() {
+class SignUpInfoScreen : Fragment() {
 
     @Inject
     lateinit var supabase: Supabase
@@ -106,7 +105,7 @@ class VerificationFragment : Fragment() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { /* TODO */ }) {
                         Icon(
                             painter = painterResource(id = R.drawable.white_back_arrow),
                             contentDescription = "show password",
@@ -114,7 +113,7 @@ class VerificationFragment : Fragment() {
                         )
                     }
 
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { /* TODO */ }) {
                         Icon(
                             painter = painterResource(id = R.drawable.help_circle_outline),
                             contentDescription = "show password",
@@ -211,6 +210,10 @@ class VerificationFragment : Fragment() {
                     onClick = {
                         coroutineScope.launch {
                             supabase.signupUser(emailAddress, password)
+                            activity?.supportFragmentManager?.beginTransaction()
+                                ?.replace(R.id.container, OtpInputScreen.newInstance(emailAddress))
+                                ?.addToBackStack(null)
+                                ?.commit();
                         }
                     }) {
                     Text(
@@ -230,7 +233,7 @@ class VerificationFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance() = VerificationFragment()
+        fun newInstance() = SignUpInfoScreen()
     }
 
 }

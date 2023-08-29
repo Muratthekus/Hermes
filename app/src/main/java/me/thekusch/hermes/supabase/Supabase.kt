@@ -43,6 +43,11 @@ class Supabase @Inject constructor(
             Log.d("HERMES", exception.localizedMessage?.toString() ?: "error")
             false
         }
+    }
 
+    suspend fun resendOtp(
+        email: String
+    ) {
+        goTrue.resendEmail(OtpType.Email.SIGNUP,email)
     }
 }
