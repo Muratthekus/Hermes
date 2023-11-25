@@ -4,8 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
-import me.thekusch.hermes.signup.ui.otp.OtpInputScreen
-import me.thekusch.hermes.signup.ui.register.RegisterScreen
+import me.thekusch.hermes.intro.ui.IntroFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -15,7 +14,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.container, RegisterScreen.newInstance())
+            .add(R.id.container, IntroFragment.newInstance())
             .commit()
 
     }

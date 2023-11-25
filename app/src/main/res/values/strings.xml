@@ -9,6 +9,7 @@
     <string name="verification_fragment_subtitle">Please confirm your email address before further continue</string>
     <string name="verification_fragment_email_hint">xxxx@gmail.com</string>
     <string name="verification_fragment_password_hint">your password</string>
+    <string name="verification_fragment_password_length_error">Password should be at least 6 character long</string>
     <string name="verification_fragment_button">Continue</string>
     <string name="otp_fragment_title">Enter Your Code</string>
     <string name="otp_fragment_subtitle">We have sent you an Email with the code to %s</string>

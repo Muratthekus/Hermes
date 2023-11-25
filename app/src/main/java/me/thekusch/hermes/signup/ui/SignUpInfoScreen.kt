@@ -45,6 +45,7 @@ import kotlinx.coroutines.launch
 import me.thekusch.hermes.R
 import me.thekusch.hermes.signup.ui.otp.OtpInputScreen
 import me.thekusch.hermes.supabase.Supabase
+import me.thekusch.hermes.ui.theme.Error
 import me.thekusch.hermes.ui.theme.HermesTheme
 import me.thekusch.hermes.util.widget.getFieldIconTint
 import me.thekusch.hermes.util.widget.provideTextFieldColors
@@ -198,8 +199,18 @@ class SignUpInfoScreen : Fragment() {
                             )
                         }
                     },
-                    isError = isPasswordLegit
+                    isError = isPasswordLegit.not(),
                 )
+                if (isPasswordLegit.not()) {
+                    Text(
+                        text = stringResource(id = R.string.verification_fragment_password_length_error),
+                        color = Error,
+                        style = MaterialTheme.typography.caption,
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(start = 24.dp, top = 4.dp),
+                        textAlign = TextAlign.Start
+                    )
+                }
 
                 Button(
                     modifier = Modifier
@@ -214,7 +225,7 @@ class SignUpInfoScreen : Fragment() {
                             activity?.supportFragmentManager?.beginTransaction()
                                 ?.replace(R.id.container, OtpInputScreen.newInstance(emailAddress))
                                 ?.addToBackStack(null)
-                                ?.commit();
+                                ?.commit()
                         }
                     }) {
                     Text(
