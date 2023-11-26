@@ -37,6 +37,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import me.thekusch.hermes.R
+import me.thekusch.hermes.signup.ui.register.RegisterScreen
 import me.thekusch.hermes.ui.theme.HermesTheme
 import me.thekusch.hermes.util.widget.OtpTextField
 import me.thekusch.hermes.util.widget.Timer
@@ -113,7 +114,10 @@ class OtpInputScreen : Fragment() {
                     CircularProgressIndicator()
 
                 if (uiState == OtpInputUiState.Success) {
-
+                    activity?.supportFragmentManager?.beginTransaction()
+                        ?.replace(R.id.container, RegisterScreen.newInstance())
+                        ?.addToBackStack(null)
+                        ?.commit()
                 }
 
                 Column(
@@ -148,7 +152,8 @@ class OtpInputScreen : Fragment() {
                             .fillMaxWidth()
                             .padding(top = 48.dp),
                         isEnabled = otpInputFinished.not(),
-                        otpText = otpText, onOtpTextChange = { value, otpInputFilled ->
+                        otpText = otpText,
+                        onOtpTextChange = { value, otpInputFilled ->
                             otpInputFinished = otpInputFilled
                             otpText = value
                             if (otpInputFilled) {

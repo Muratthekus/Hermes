@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -40,8 +42,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import me.thekusch.hermes.R
 import me.thekusch.hermes.signup.ui.otp.OtpInputScreen
 import me.thekusch.hermes.supabase.Supabase
@@ -58,6 +61,8 @@ class SignUpInfoScreen : Fragment() {
     lateinit var supabase: Supabase
 
     private lateinit var composeView: ComposeView
+
+    private val viewModel by viewModels<SignUpViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -86,6 +91,8 @@ class SignUpInfoScreen : Fragment() {
     @Composable
     fun VerificationContent() {
 
+        val uiState by viewModel.signUpUiState.collectAsStateWithLifecycle()
+
         var emailAddress by remember { mutableStateOf("") }
 
         var password by remember { mutableStateOf("") }
@@ -97,8 +104,6 @@ class SignUpInfoScreen : Fragment() {
                 password.length > 6
             }
         }
-
-        val coroutineScope = rememberCoroutineScope()
 
         Scaffold(
             modifier = Modifier.background(MaterialTheme.colors.background),
@@ -125,6 +130,19 @@ class SignUpInfoScreen : Fragment() {
                 }
             }
         ) { paddingValues ->
+            if (uiState == SignUpUiState.Loading) {
+                Box(Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(
+                        Modifier.align(Alignment.Center)
+                    )
+                }
+            }
+            if (uiState == SignUpUiState.Success) {
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, OtpInputScreen.newInstance(emailAddress))
+                    ?.addToBackStack(null)
+                    ?.commit()
+            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -179,7 +197,9 @@ class SignUpInfoScreen : Fragment() {
                             style = MaterialTheme.typography.body1,
                         )
                     },
-                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    visualTransformation = if (isPasswordVisible)
+                        VisualTransformation.None
+                    else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     textStyle = MaterialTheme.typography.body1,
                     colors = provideTextFieldColors(),
@@ -206,7 +226,8 @@ class SignUpInfoScreen : Fragment() {
                         text = stringResource(id = R.string.verification_fragment_password_length_error),
                         color = Error,
                         style = MaterialTheme.typography.caption,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .padding(start = 24.dp, top = 4.dp),
                         textAlign = TextAlign.Start
                     )
@@ -218,15 +239,11 @@ class SignUpInfoScreen : Fragment() {
                         .fillMaxWidth()
                         .height(52.dp),
                     shape = RoundedCornerShape(30.dp),
-                    enabled = emailAddress.isNotEmpty() && isPasswordLegit,
+                    enabled = emailAddress.isNotEmpty() &&
+                            isPasswordLegit &&
+                            uiState != SignUpUiState.Loading,
                     onClick = {
-                        coroutineScope.launch {
-                            supabase.signupUser(emailAddress, password)
-                            activity?.supportFragmentManager?.beginTransaction()
-                                ?.replace(R.id.container, OtpInputScreen.newInstance(emailAddress))
-                                ?.addToBackStack(null)
-                                ?.commit()
-                        }
+                        viewModel.signUpUser(emailAddress, password)
                     }) {
                     Text(
                         text = stringResource(id = R.string.verification_fragment_button),

@@ -46,10 +46,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import dagger.hilt.android.AndroidEntryPoint
+import me.thekusch.hermes.BlankFragment
 import me.thekusch.hermes.R
+import me.thekusch.hermes.signup.ui.otp.OtpInputScreen
 import me.thekusch.hermes.ui.theme.Black
 import me.thekusch.hermes.ui.theme.HermesTheme
 import me.thekusch.hermes.ui.theme.WhiteVariant
@@ -60,6 +64,8 @@ import me.thekusch.hermes.util.widget.provideTextFieldColors
 class RegisterScreen : Fragment() {
 
     private lateinit var composeView: ComposeView
+
+    private val viewModel by viewModels<RegisterViewModel>()
 
     private val pickMedia =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -102,6 +108,8 @@ class RegisterScreen : Fragment() {
             mutableStateOf(Uri.EMPTY)
         }
 
+        val finalizeProcess = viewModel.finalizeProcess.collectAsStateWithLifecycle().value
+
         Scaffold(
             modifier = Modifier.background(MaterialTheme.colors.background),
             topBar = {
@@ -119,6 +127,12 @@ class RegisterScreen : Fragment() {
                 }
             }
         ) { paddingValues ->
+            if (finalizeProcess) {
+                activity?.supportFragmentManager?.beginTransaction()
+                    ?.replace(R.id.container, BlankFragment.newInstance())
+                    ?.addToBackStack(null)
+                    ?.commit()
+            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -211,7 +225,7 @@ class RegisterScreen : Fragment() {
                     shape = RoundedCornerShape(30.dp),
                     enabled = username.isNotEmpty(),
                     onClick = {
-
+                        viewModel.finalizeSignUpProcess(username)
                     }) {
                     Text(
                         text = stringResource(id = R.string.register_button),

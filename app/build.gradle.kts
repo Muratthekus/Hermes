@@ -69,4 +69,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
     implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("androidx.security:security-crypto:1.0.0")
+
 }

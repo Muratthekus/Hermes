@@ -21,11 +21,26 @@ class Supabase @Inject constructor(
     suspend fun signupUser(
         email: String,
         password: String
-    ) {
-        goTrue.signUpWith(Email) {
+    ): String? {
+        val result = goTrue.signUpWith(Email) {
             this.email = email
             this.password = password
         }
+        return result?.email
+    }
+
+    suspend fun signIn(
+        email: String,
+        password: String
+    ) {
+        goTrue.loginWith(Email) {
+            this.email = email
+            this.password = password
+        }
+    }
+
+    suspend fun logout() {
+        goTrue.logout()
     }
 
     suspend fun verifyEmailOtp(
@@ -48,6 +63,6 @@ class Supabase @Inject constructor(
     suspend fun resendOtp(
         email: String
     ) {
-        goTrue.resendEmail(OtpType.Email.SIGNUP,email)
+        goTrue.resendEmail(OtpType.Email.SIGNUP, email)
     }
 }
