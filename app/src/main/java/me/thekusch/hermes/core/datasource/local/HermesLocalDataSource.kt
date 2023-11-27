@@ -5,23 +5,26 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
+import javax.inject.Inject
+import javax.inject.Singleton
 
-internal object HermesLocalDataSource {
+@Singleton
+class HermesLocalDataSource @Inject constructor() {
 
-    private const val USERNAME = "USERNAME"
-    private const val PASSWORD = "PASSWORD"
-    private const val EMAIL = "EMAIL"
-    private const val ISSIGNUP_FINISHED = "ISSIGNUP_FINISHED"
+    private val NAME = "NAME"
+    private val PASSWORD = "PASSWORD"
+    private val EMAIL = "EMAIL"
+    private val ISSIGNUP_FINISHED = "ISSIGNUP_FINISHED"
 
     private lateinit var sharedPreferences: SharedPreferences
 
-    internal var username: String?
+    internal var name: String?
         get() {
-            return sharedPreferences.getString(USERNAME, null)
+            return sharedPreferences.getString(NAME, null)
         }
         set(value) {
             sharedPreferences.edit {
-                putString(USERNAME, value)
+                putString(NAME, value)
             }
         }
 
@@ -51,7 +54,7 @@ internal object HermesLocalDataSource {
         }
         set(value) {
             sharedPreferences.edit {
-                putBoolean(ISSIGNUP_FINISHED,value)
+                putBoolean(ISSIGNUP_FINISHED, value)
             }
         }
 

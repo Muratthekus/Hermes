@@ -7,10 +7,14 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 import me.thekusch.hermes.core.datasource.local.HermesLocalDataSource
 import me.thekusch.hermes.intro.ui.IntroFragment
+import javax.inject.Inject
 
 @OptIn(ExperimentalPagerApi::class)
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var hermesLocalDataSource: HermesLocalDataSource
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -21,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getRootFragment(): Fragment {
-        return if (HermesLocalDataSource.isSignUpProcessFinished) {
+        return if (hermesLocalDataSource.isSignUpProcessFinished) {
             BlankFragment.newInstance()
         } else {
             IntroFragment.newInstance()

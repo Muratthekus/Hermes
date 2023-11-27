@@ -1,12 +1,15 @@
-package me.thekusch.hermes.supabase
+package me.thekusch.hermes.core.datasource.supabase
 
 import android.util.Log
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.GoTrue
 import io.github.jan.supabase.gotrue.OtpType
+import io.github.jan.supabase.gotrue.SessionManager
+import io.github.jan.supabase.gotrue.SessionStatus
 import io.github.jan.supabase.gotrue.gotrue
 import io.github.jan.supabase.gotrue.providers.builtin.Email
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 class Supabase @Inject constructor(
@@ -18,10 +21,16 @@ class Supabase @Inject constructor(
             return supabase.gotrue
         }
 
+    val sessionStatus: StateFlow<SessionStatus>
+        get() {
+            return goTrue.sessionStatus
+        }
+
     suspend fun signupUser(
         email: String,
         password: String
     ): String? {
+        goTrue.sessionManager
         val result = goTrue.signUpWith(Email) {
             this.email = email
             this.password = password

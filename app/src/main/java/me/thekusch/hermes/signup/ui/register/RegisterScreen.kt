@@ -60,6 +60,7 @@ import me.thekusch.hermes.ui.theme.WhiteVariant
 import me.thekusch.hermes.util.widget.getFieldIconTint
 import me.thekusch.hermes.util.widget.provideTextFieldColors
 
+@Deprecated("Register flow is updated, remove RegisterScreen from register flow")
 @AndroidEntryPoint
 class RegisterScreen : Fragment() {
 

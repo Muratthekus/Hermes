@@ -1,5 +1,7 @@
 package me.thekusch.hermes.di
 
+import android.content.Context
+import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -7,6 +9,8 @@ import dagger.hilt.components.SingletonComponent
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.GoTrue
+import me.thekusch.hermes.core.datasource.local.room.HermesDataBase
+import me.thekusch.hermes.core.datasource.local.room.dao.UserDao
 import javax.inject.Singleton
 
 @Module
@@ -24,5 +28,19 @@ class AppModule {
 
             }
         }
+    }
+
+    @Provides
+    fun provideDatabase(context: Context): HermesDataBase {
+        return Room.databaseBuilder(
+            context,
+            HermesDataBase::class.java,
+            "app_database"
+        ).build()
+    }
+
+    @Provides
+    fun provideUserDao(database: HermesDataBase): UserDao {
+        return database.userDao()
     }
 }

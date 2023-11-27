@@ -1,19 +1,17 @@
-package me.thekusch.hermes.signup.ui
+package me.thekusch.hermes.signup.ui.info
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import me.thekusch.hermes.core.datasource.local.HermesLocalDataSource
-import me.thekusch.hermes.supabase.Supabase
+import me.thekusch.hermes.signup.domain.SignUpUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    private val supabase: Supabase
+    private val signUpUseCase: SignUpUseCase
 ) : ViewModel() {
 
 
@@ -22,19 +20,10 @@ class SignUpViewModel @Inject constructor(
 
     val signUpUiState: StateFlow<SignUpUiState> = _signUpUiState
 
-    fun signUpUser(email: String, password: String) {
+    fun signUpUser(name: String, email: String, password: String) {
         viewModelScope.launch {
             _signUpUiState.value = SignUpUiState.Loading
-            val signUpResultDef = async {
-                supabase.signupUser(email, password)
-            }
-
-            val signUpResult = signUpResultDef.await()
-
-            HermesLocalDataSource.apply {
-                this.email = signUpResult
-                this.password = password
-            }
+            signUpUseCase.signUpUser(email, password, name)
             _signUpUiState.value = SignUpUiState.Success
         }
     }

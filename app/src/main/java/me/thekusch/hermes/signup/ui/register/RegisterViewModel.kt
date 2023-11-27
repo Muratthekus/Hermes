@@ -8,7 +8,9 @@ import me.thekusch.hermes.core.datasource.local.HermesLocalDataSource
 import javax.inject.Inject
 
 @HiltViewModel
-class RegisterViewModel @Inject constructor(): ViewModel() {
+class RegisterViewModel @Inject constructor(
+    private val hermesLocalDataSource: HermesLocalDataSource
+): ViewModel() {
 
     private val _finalizeProcess: MutableStateFlow<Boolean> =
         MutableStateFlow(false)
@@ -18,8 +20,8 @@ class RegisterViewModel @Inject constructor(): ViewModel() {
     fun finalizeSignUpProcess(
         username: String
     ) {
-        HermesLocalDataSource.apply {
-            this.username = username
+        hermesLocalDataSource.apply {
+            this.name = username
             this.isSignUpProcessFinished = true
         }
         _finalizeProcess.value = true

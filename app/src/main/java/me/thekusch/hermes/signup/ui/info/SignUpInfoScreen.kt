@@ -1,4 +1,4 @@
-package me.thekusch.hermes.signup.ui
+package me.thekusch.hermes.signup.ui.info
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -28,7 +28,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,18 +46,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import me.thekusch.hermes.R
 import me.thekusch.hermes.signup.ui.otp.OtpInputScreen
-import me.thekusch.hermes.supabase.Supabase
 import me.thekusch.hermes.ui.theme.Error
 import me.thekusch.hermes.ui.theme.HermesTheme
 import me.thekusch.hermes.util.widget.getFieldIconTint
 import me.thekusch.hermes.util.widget.provideTextFieldColors
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class SignUpInfoScreen : Fragment() {
-
-    @Inject
-    lateinit var supabase: Supabase
 
     private lateinit var composeView: ComposeView
 
@@ -93,17 +87,7 @@ class SignUpInfoScreen : Fragment() {
 
         val uiState by viewModel.signUpUiState.collectAsStateWithLifecycle()
 
-        var emailAddress by remember { mutableStateOf("") }
-
-        var password by remember { mutableStateOf("") }
-
-        var isPasswordVisible by remember { mutableStateOf(false) }
-
-        val isPasswordLegit by remember(password) {
-            derivedStateOf {
-                password.length > 6
-            }
-        }
+        val contentState = rememberSignUpContentState()
 
         Scaffold(
             modifier = Modifier.background(MaterialTheme.colors.background),
@@ -139,7 +123,10 @@ class SignUpInfoScreen : Fragment() {
             }
             if (uiState == SignUpUiState.Success) {
                 activity?.supportFragmentManager?.beginTransaction()
-                    ?.replace(R.id.container, OtpInputScreen.newInstance(emailAddress))
+                    ?.replace(
+                        R.id.container,
+                        OtpInputScreen.newInstance(contentState.email)
+                    )
                     ?.addToBackStack(null)
                     ?.commit()
             }
@@ -152,7 +139,7 @@ class SignUpInfoScreen : Fragment() {
             ) {
 
                 Text(
-                    text = stringResource(id = R.string.verification_fragment_title),
+                    text = stringResource(id = R.string.signup_info_fragment_title),
                     style = MaterialTheme.typography.h2,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colors.onBackground
@@ -160,7 +147,7 @@ class SignUpInfoScreen : Fragment() {
 
                 Text(
                     modifier = Modifier.padding(top = 16.dp, start = 40.dp, end = 40.dp),
-                    text = stringResource(id = R.string.verification_fragment_subtitle),
+                    text = stringResource(id = R.string.signup_info_fragment_subtitle),
                     style = MaterialTheme.typography.body2,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colors.onBackground
@@ -171,11 +158,29 @@ class SignUpInfoScreen : Fragment() {
                         .fillMaxWidth()
                         .padding(start = 24.dp, end = 24.dp, top = 40.dp)
                         .height(50.dp),
-                    value = emailAddress,
-                    onValueChange = { emailAddress = it },
+                    value = contentState.name,
+                    onValueChange = { contentState.name = it },
                     placeholder = {
                         Text(
-                            text = stringResource(id = R.string.verification_fragment_email_hint),
+                            text = stringResource(id = R.string.signup_info_fragment_name_hint),
+                            style = MaterialTheme.typography.body1,
+                        )
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    textStyle = MaterialTheme.typography.body1,
+                    colors = provideTextFieldColors(),
+                )
+
+                TextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 24.dp, end = 24.dp, top = 40.dp)
+                        .height(50.dp),
+                    value = contentState.email,
+                    onValueChange = { contentState.email = it },
+                    placeholder = {
+                        Text(
+                            text = stringResource(id = R.string.signup_info_fragment_email_hint),
                             style = MaterialTheme.typography.body1,
                         )
                     },
@@ -189,29 +194,31 @@ class SignUpInfoScreen : Fragment() {
                         .fillMaxWidth()
                         .padding(start = 24.dp, end = 24.dp, top = 20.dp)
                         .height(50.dp),
-                    value = password,
-                    onValueChange = { password = it },
+                    value = contentState.password,
+                    onValueChange = { contentState.password = it },
                     placeholder = {
                         Text(
-                            text = stringResource(id = R.string.verification_fragment_password_hint),
+                            text = stringResource(id = R.string.signup_info_fragment_password_hint),
                             style = MaterialTheme.typography.body1,
                         )
                     },
-                    visualTransformation = if (isPasswordVisible)
+                    visualTransformation = if (contentState.isPasswordVisible)
                         VisualTransformation.None
                     else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     textStyle = MaterialTheme.typography.body1,
                     colors = provideTextFieldColors(),
                     trailingIcon = {
-                        val image = if (isPasswordVisible)
+                        val image = if (contentState.isPasswordVisible)
                             painterResource(id = R.drawable.password_show)
                         else painterResource(id = R.drawable.password_hide)
 
                         val description =
-                            if (isPasswordVisible) "Hide password" else "Show password"
+                            if (contentState.isPasswordVisible) "Hide password" else "Show password"
 
-                        IconButton(onClick = { isPasswordVisible = isPasswordVisible.not() }) {
+                        IconButton(onClick = {
+                            contentState.isPasswordVisible = contentState.isPasswordVisible.not()
+                        }) {
                             Icon(
                                 painter = image,
                                 contentDescription = description,
@@ -219,11 +226,11 @@ class SignUpInfoScreen : Fragment() {
                             )
                         }
                     },
-                    isError = isPasswordLegit.not(),
+                    isError = contentState.isPasswordLegit.not(),
                 )
-                if (isPasswordLegit.not()) {
+                if (contentState.isPasswordLegit.not()) {
                     Text(
-                        text = stringResource(id = R.string.verification_fragment_password_length_error),
+                        text = stringResource(id = R.string.signup_info_fragment_password_length_error),
                         color = Error,
                         style = MaterialTheme.typography.caption,
                         modifier = Modifier
@@ -239,14 +246,17 @@ class SignUpInfoScreen : Fragment() {
                         .fillMaxWidth()
                         .height(52.dp),
                     shape = RoundedCornerShape(30.dp),
-                    enabled = emailAddress.isNotEmpty() &&
-                            isPasswordLegit &&
+                    enabled = contentState.isButtonEnabled &&
                             uiState != SignUpUiState.Loading,
                     onClick = {
-                        viewModel.signUpUser(emailAddress, password)
+                        viewModel.signUpUser(
+                            contentState.name,
+                            contentState.email,
+                            contentState.password
+                        )
                     }) {
                     Text(
-                        text = stringResource(id = R.string.verification_fragment_button),
+                        text = stringResource(id = R.string.signup_info_fragment_button),
                         color = MaterialTheme.colors.onPrimary
                     )
                 }
