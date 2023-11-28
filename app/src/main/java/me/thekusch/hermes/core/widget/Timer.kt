@@ -1,4 +1,4 @@
-package me.thekusch.hermes.util.widget
+package me.thekusch.hermes.core.widget
 
 import android.os.CountDownTimer
 import androidx.compose.material.MaterialTheme
