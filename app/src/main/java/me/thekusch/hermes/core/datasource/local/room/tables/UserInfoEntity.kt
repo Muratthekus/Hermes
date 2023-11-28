@@ -6,15 +6,15 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonObject
 
 @Entity(tableName = "userInfo")
-data class UserInfo(
+data class UserInfoEntity(
     @PrimaryKey val id: String,
+    val accountOwner: Boolean?,
     val email: String?,
     val name: String,
-    val confirmedAt: Instant?,
-    val createdAt: Instant?,
-    val emailConfirmedAt: Instant?,
-    val lastSignInAt: Instant?,
+    val confirmedAt: Long?,
+    val createdAt: Long?,
+    val emailConfirmedAt: Long?,
+    val lastSignInAt: Long?,
     val phone: String?,
-    val updatedAt: Instant?,
-    val userMetadata: JsonObject?
+    val updatedAt: Long?,
 )

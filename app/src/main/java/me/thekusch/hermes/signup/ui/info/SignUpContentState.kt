@@ -16,19 +16,19 @@ import kotlinx.parcelize.Parcelize
 
 @Stable
 @Parcelize
-class ContentState(
+class UserInfo(
     val email: String = "",
     val password: String = "",
     val name: String = "",
 ) : Parcelable
 
-class SignUpContentState(private val contentState: ContentState) {
+class SignUpContentState(val userInfo: UserInfo) {
 
-    private var _email by mutableStateOf(contentState.email)
+    private var _email by mutableStateOf(userInfo.email)
 
-    private var _password by mutableStateOf(contentState.password)
+    private var _password by mutableStateOf(userInfo.password)
 
-    private var _name by mutableStateOf(contentState.name)
+    private var _name by mutableStateOf(userInfo.name)
 
     private var _isPasswordVisible by mutableStateOf(false)
 
@@ -76,13 +76,13 @@ class SignUpContentState(private val contentState: ContentState) {
                 save = { state ->
                     Bundle().apply {
                         putParcelable(
-                            "signUpKey", state.contentState
+                            "signUpKey", state.userInfo
                         )
                     }
                 },
                 restore = {
-                    val savedState = it.getParcelable<ContentState>("signUpKey")
-                    SignUpContentState(savedState as ContentState)
+                    val savedState = it.getParcelable<UserInfo>("signUpKey")
+                    SignUpContentState(savedState as UserInfo)
                 }
             )
         }
@@ -97,5 +97,5 @@ fun rememberSignUpContentState(
 ): SignUpContentState = rememberSaveable(
     saver = SignUpContentState.signUpStateSaver()
 ) {
-    SignUpContentState(ContentState(email, password, name))
+    SignUpContentState(UserInfo(email, password, name))
 }

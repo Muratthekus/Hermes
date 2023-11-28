@@ -6,13 +6,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import me.thekusch.hermes.core.datasource.supabase.Supabase
+import me.thekusch.hermes.core.domain.SessionManager
+import me.thekusch.hermes.core.datasource.local.model.Result
 import javax.inject.Inject
 
 @HiltViewModel
 class OtpInputViewModel @Inject constructor(
-    private val supabase: Supabase
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     private lateinit var verifyJob: Job
@@ -26,16 +28,31 @@ class OtpInputViewModel @Inject constructor(
         email: String,
         otp: String
     ) {
-        if (::verifyJob.isInitialized)
+        if (::verifyJob.isInitialized) {
+            _otpUiState.value = OtpInputUiState.Init
             verifyJob.cancel()
+        }
 
         verifyJob = viewModelScope.launch {
-            _otpUiState.value = OtpInputUiState.Loading
-            _otpUiState.value = if (supabase.verifyEmailOtp(email, otp)) {
-                OtpInputUiState.Success
-            }
-            else OtpInputUiState.Error
+            sessionManager.verifySignUp(email, otp).collectLatest {
+                when (it) {
+                    is Result.Started -> {
+                        _otpUiState.value = OtpInputUiState.Loading
+                    }
 
+                    is Result.Success -> {
+                        _otpUiState.value = OtpInputUiState.Success
+                    }
+
+                    is Result.Fail -> {
+                        _otpUiState.value = OtpInputUiState.Error(it.exception.localizedMessage)
+                    }
+
+                    else -> {
+                        _otpUiState.value = OtpInputUiState.Error()
+                    }
+                }
+            }
         }
     }
 }

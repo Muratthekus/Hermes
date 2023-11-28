@@ -1,11 +1,9 @@
 package me.thekusch.hermes.signup.domain
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
-import me.thekusch.hermes.core.datasource.local.HermesLocalDataSource
+import me.thekusch.hermes.core.datasource.local.cache.HermesLocalDataSource
 import me.thekusch.hermes.core.datasource.supabase.Supabase
-import me.thekusch.hermes.signup.ui.info.SignUpUiState
 import javax.inject.Inject
 
 class SignUpUseCase @Inject constructor(
@@ -18,15 +16,8 @@ class SignUpUseCase @Inject constructor(
         password: String,
         name: String
     ) {
-        withContext(Dispatchers.IO) {
-            val signUpResult = supabase.signupUser(email, password)
-
-            hermesLocalDataSource.apply {
-                this.email = signUpResult
-                this.password = password
-                this.name = name
-            }
-        }
+        hermesLocalDataSource.name = name
+        supabase.signupUser(email, password)
 
     }
 }

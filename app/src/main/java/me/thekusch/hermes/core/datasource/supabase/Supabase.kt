@@ -30,7 +30,6 @@ class Supabase @Inject constructor(
         email: String,
         password: String
     ): String? {
-        goTrue.sessionManager
         val result = goTrue.signUpWith(Email) {
             this.email = email
             this.password = password
@@ -56,6 +55,7 @@ class Supabase @Inject constructor(
         email: String,
         token: String
     ): Boolean {
+        Log.d("HERMES","$email -- $token")
         return try {
             goTrue.verifyEmailOtp(
                 type = OtpType.Email.SIGNUP,

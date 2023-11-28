@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
-import me.thekusch.hermes.core.datasource.local.HermesLocalDataSource
+import me.thekusch.hermes.core.datasource.local.cache.HermesLocalDataSource
 import me.thekusch.hermes.intro.ui.IntroFragment
 import javax.inject.Inject
 
@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getRootFragment(): Fragment {
-        return if (hermesLocalDataSource.isSignUpProcessFinished) {
+        return if (false) {
             BlankFragment.newInstance()
         } else {
             IntroFragment.newInstance()

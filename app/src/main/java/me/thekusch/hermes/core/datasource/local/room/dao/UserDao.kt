@@ -6,19 +6,19 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import me.thekusch.hermes.core.datasource.local.room.tables.UserInfo
+import me.thekusch.hermes.core.datasource.local.room.tables.UserInfoEntity
 
 @Dao
 interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertUser(userInfo: UserInfo)
+    suspend fun insertUser(userInfo: UserInfoEntity)
 
     @Update(onConflict = OnConflictStrategy.ABORT)
-    suspend fun updateUser(userInfo: UserInfo)
+    suspend fun updateUser(userInfo: UserInfoEntity)
 
     @Delete
-    suspend fun deleteUser(userInfo: UserInfo)
+    suspend fun deleteUser(userInfo: UserInfoEntity)
 
     @Query("SELECT * FROM userInfo")
-    suspend fun getUser(): List<UserInfo>
+    suspend fun getUser(): List<UserInfoEntity>
 }
