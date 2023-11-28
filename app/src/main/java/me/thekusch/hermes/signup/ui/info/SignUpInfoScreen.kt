@@ -48,8 +48,8 @@ import me.thekusch.hermes.R
 import me.thekusch.hermes.signup.ui.otp.OtpInputScreen
 import me.thekusch.hermes.ui.theme.Error
 import me.thekusch.hermes.ui.theme.HermesTheme
-import me.thekusch.hermes.util.widget.getFieldIconTint
-import me.thekusch.hermes.util.widget.provideTextFieldColors
+import me.thekusch.hermes.core.widget.getFieldIconTint
+import me.thekusch.hermes.core.widget.provideTextFieldColors
 
 @AndroidEntryPoint
 class SignUpInfoScreen : Fragment() {
