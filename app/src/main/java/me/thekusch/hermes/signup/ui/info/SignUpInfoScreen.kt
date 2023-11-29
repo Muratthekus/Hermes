@@ -40,6 +40,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -114,13 +115,6 @@ class SignUpInfoScreen : Fragment() {
                 }
             }
         ) { paddingValues ->
-            if (uiState == SignUpUiState.Loading) {
-                Box(Modifier.fillMaxSize()) {
-                    CircularProgressIndicator(
-                        Modifier.align(Alignment.Center)
-                    )
-                }
-            }
             if (uiState == SignUpUiState.Success) {
                 activity?.supportFragmentManager?.beginTransaction()
                     ?.replace(
@@ -130,137 +124,152 @@ class SignUpInfoScreen : Fragment() {
                     ?.addToBackStack(null)
                     ?.commit()
             }
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colors.background)
-                    .padding(paddingValues),
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-
-                Text(
-                    text = stringResource(id = R.string.signup_info_fragment_title),
-                    style = MaterialTheme.typography.h2,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colors.onBackground
-                )
-
-                Text(
-                    modifier = Modifier.padding(top = 16.dp, start = 40.dp, end = 40.dp),
-                    text = stringResource(id = R.string.signup_info_fragment_subtitle),
-                    style = MaterialTheme.typography.body2,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colors.onBackground
-                )
-
-                TextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 24.dp, end = 24.dp, top = 40.dp)
-                        .height(50.dp),
-                    value = contentState.name,
-                    onValueChange = { contentState.name = it },
-                    placeholder = {
-                        Text(
-                            text = stringResource(id = R.string.signup_info_fragment_name_hint),
-                            style = MaterialTheme.typography.body1,
+                if (uiState == SignUpUiState.Loading) {
+                    Box(Modifier.fillMaxSize().zIndex(1f)) {
+                        CircularProgressIndicator(
+                            Modifier.align(Alignment.Center)
                         )
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    textStyle = MaterialTheme.typography.body1,
-                    colors = provideTextFieldColors(),
-                )
+                    }
+                }
 
-                TextField(
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 24.dp, end = 24.dp, top = 40.dp)
-                        .height(50.dp),
-                    value = contentState.email,
-                    onValueChange = { contentState.email = it },
-                    placeholder = {
-                        Text(
-                            text = stringResource(id = R.string.signup_info_fragment_email_hint),
-                            style = MaterialTheme.typography.body1,
-                        )
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    textStyle = MaterialTheme.typography.body1,
-                    colors = provideTextFieldColors(),
-                )
+                        .fillMaxSize()
+                        .background(MaterialTheme.colors.background)
+                        .padding(paddingValues),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
 
-                TextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 24.dp, end = 24.dp, top = 20.dp)
-                        .height(50.dp),
-                    value = contentState.password,
-                    onValueChange = { contentState.password = it },
-                    placeholder = {
-                        Text(
-                            text = stringResource(id = R.string.signup_info_fragment_password_hint),
-                            style = MaterialTheme.typography.body1,
-                        )
-                    },
-                    visualTransformation = if (contentState.isPasswordVisible)
-                        VisualTransformation.None
-                    else PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    textStyle = MaterialTheme.typography.body1,
-                    colors = provideTextFieldColors(),
-                    trailingIcon = {
-                        val image = if (contentState.isPasswordVisible)
-                            painterResource(id = R.drawable.password_show)
-                        else painterResource(id = R.drawable.password_hide)
-
-                        val description =
-                            if (contentState.isPasswordVisible) "Hide password" else "Show password"
-
-                        IconButton(onClick = {
-                            contentState.isPasswordVisible = contentState.isPasswordVisible.not()
-                        }) {
-                            Icon(
-                                painter = image,
-                                contentDescription = description,
-                                tint = getFieldIconTint()
-                            )
-                        }
-                    },
-                    isError = contentState.isPasswordLegit.not(),
-                )
-                if (contentState.isPasswordLegit.not()) {
                     Text(
-                        text = stringResource(id = R.string.signup_info_fragment_password_length_error),
-                        color = Error,
-                        style = MaterialTheme.typography.caption,
+                        text = stringResource(id = R.string.signup_info_fragment_title),
+                        style = MaterialTheme.typography.h2,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colors.onBackground
+                    )
+
+                    Text(
+                        modifier = Modifier.padding(top = 16.dp, start = 40.dp, end = 40.dp),
+                        text = stringResource(id = R.string.signup_info_fragment_subtitle),
+                        style = MaterialTheme.typography.body2,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colors.onBackground
+                    )
+
+                    TextField(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 24.dp, top = 4.dp),
-                        textAlign = TextAlign.Start
+                            .padding(start = 24.dp, end = 24.dp, top = 40.dp)
+                            .height(50.dp),
+                        value = contentState.name,
+                        onValueChange = { contentState.name = it },
+                        placeholder = {
+                            Text(
+                                text = stringResource(id = R.string.signup_info_fragment_name_hint),
+                                style = MaterialTheme.typography.body1,
+                            )
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        textStyle = MaterialTheme.typography.body1,
+                        colors = provideTextFieldColors(),
                     )
-                }
 
-                Button(
-                    modifier = Modifier
-                        .padding(start = 24.dp, end = 24.dp, top = 60.dp)
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(30.dp),
-                    enabled = contentState.isButtonEnabled &&
-                            uiState != SignUpUiState.Loading,
-                    onClick = {
-                        viewModel.signUpUser(
-                            contentState.name,
-                            contentState.email,
-                            contentState.password
-                        )
-                    }) {
-                    Text(
-                        text = stringResource(id = R.string.signup_info_fragment_button),
-                        color = MaterialTheme.colors.onPrimary
+                    TextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 24.dp, end = 24.dp, top = 40.dp)
+                            .height(50.dp),
+                        value = contentState.email,
+                        onValueChange = { contentState.email = it },
+                        placeholder = {
+                            Text(
+                                text = stringResource(id = R.string.signup_info_fragment_email_hint),
+                                style = MaterialTheme.typography.body1,
+                            )
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        textStyle = MaterialTheme.typography.body1,
+                        colors = provideTextFieldColors(),
                     )
+
+                    TextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 24.dp, end = 24.dp, top = 20.dp)
+                            .height(50.dp),
+                        value = contentState.password,
+                        onValueChange = { contentState.password = it },
+                        placeholder = {
+                            Text(
+                                text = stringResource(id = R.string.signup_info_fragment_password_hint),
+                                style = MaterialTheme.typography.body1,
+                            )
+                        },
+                        visualTransformation = if (contentState.isPasswordVisible)
+                            VisualTransformation.None
+                        else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        textStyle = MaterialTheme.typography.body1,
+                        colors = provideTextFieldColors(),
+                        trailingIcon = {
+                            val image = if (contentState.isPasswordVisible)
+                                painterResource(id = R.drawable.password_show)
+                            else painterResource(id = R.drawable.password_hide)
+
+                            val description =
+                                if (contentState.isPasswordVisible) "Hide password" else "Show password"
+
+                            IconButton(onClick = {
+                                contentState.isPasswordVisible =
+                                    contentState.isPasswordVisible.not()
+                            }) {
+                                Icon(
+                                    painter = image,
+                                    contentDescription = description,
+                                    tint = getFieldIconTint()
+                                )
+                            }
+                        },
+                        isError = contentState.isPasswordLegit.not(),
+                    )
+                    if (contentState.isPasswordLegit.not()) {
+                        Text(
+                            text = stringResource(id = R.string.signup_info_fragment_password_length_error),
+                            color = Error,
+                            style = MaterialTheme.typography.caption,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 24.dp, top = 4.dp),
+                            textAlign = TextAlign.Start
+                        )
+                    }
+
+                    Button(
+                        modifier = Modifier
+                            .padding(start = 24.dp, end = 24.dp, top = 60.dp)
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(30.dp),
+                        enabled = contentState.isButtonEnabled &&
+                                uiState != SignUpUiState.Loading,
+                        onClick = {
+                            viewModel.signUpUser(
+                                contentState.name,
+                                contentState.email,
+                                contentState.password
+                            )
+                        }) {
+                        Text(
+                            text = stringResource(id = R.string.signup_info_fragment_button),
+                            color = MaterialTheme.colors.onPrimary
+                        )
+                    }
                 }
             }
+
         }
     }
 

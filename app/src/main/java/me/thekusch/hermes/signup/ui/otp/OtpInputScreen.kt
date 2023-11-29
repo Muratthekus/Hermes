@@ -32,6 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -112,11 +113,16 @@ class OtpInputScreen : Fragment() {
                 contentAlignment = Alignment.Center,
             ) {
 
-                if (uiState == OtpInputUiState.Loading)
-                    CircularProgressIndicator()
+                if (uiState == OtpInputUiState.Loading) {
+                    Box(Modifier.fillMaxSize().zIndex(1f)) {
+                        CircularProgressIndicator(
+                            Modifier.align(Alignment.Center)
+                        )
+                    }
+                }
 
                 if (uiState == OtpInputUiState.Success) {
-                    // TODO(murat) handle success
+                    
                 }
 
                 Column(
