@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.thekusch.hermes.core.datasource.CoreRepository
-import me.thekusch.hermes.core.datasource.local.cache.HermesLocalDataSource
 import me.thekusch.hermes.core.datasource.local.model.Result
 import me.thekusch.hermes.core.datasource.supabase.Supabase
 import me.thekusch.hermes.core.domain.mapper.SessionMapper
@@ -22,7 +21,6 @@ import javax.inject.Singleton
 @Singleton
 class SessionManager @Inject constructor(
     private val supabase: Supabase,
-    private val hermesLocalDataSource: HermesLocalDataSource,
     private val coreRepository: CoreRepository,
     private val sessionMapper: SessionMapper
 ) {
@@ -45,10 +43,9 @@ class SessionManager @Inject constructor(
                 when (status) {
                     is SessionStatus.Authenticated -> {
                         val userSession = status.session
-                        val userName = hermesLocalDataSource.name
 
                         val data = sessionMapper.mapOnVerifyOtpSuccess(
-                            userSession, userName
+                            userSession
                         )
 
                         data?.let {
@@ -57,6 +54,10 @@ class SessionManager @Inject constructor(
                             // TODO(murat) impl else block
                         }
 
+                    }
+
+                    is SessionStatus.NotAuthenticated -> {
+                        // TODO(murat) send logout event with EventBus
                     }
 
                     else -> {
@@ -73,6 +74,23 @@ class SessionManager @Inject constructor(
             user != null
         }
     }
+
+    suspend fun login(
+        email: String,
+        password: String
+    ): Flow<Result> = flow {
+        emit(Result.Started)
+
+        val result = supabase.signIn(email, password)
+
+        if (result)
+            emit(Result.Success)
+        else
+            emit(Result.Retry)
+    }.catch {
+        emit(Result.Fail(it))
+    }
+
 
     suspend fun verifySignUp(
         email: String,

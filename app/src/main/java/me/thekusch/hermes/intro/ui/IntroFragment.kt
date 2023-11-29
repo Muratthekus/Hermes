@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,6 +42,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import me.thekusch.hermes.R
 import me.thekusch.hermes.ui.theme.HermesTheme
 import me.thekusch.hermes.core.widget.HorizontalPager
+import me.thekusch.hermes.login.ui.LoginScreen
 import me.thekusch.hermes.signup.ui.info.SignUpInfoScreen
 
 @ExperimentalPagerApi
@@ -139,6 +141,24 @@ class IntroFragment : Fragment() {
                 modifier = Modifier.align(Alignment.BottomCenter),
                 visible = introPagerIndex == result.introItems.size - 1,
             ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .clickable {
+                            activity?.supportFragmentManager
+                                ?.beginTransaction()
+                                ?.replace(R.id.container, LoginScreen.newInstance())
+                                ?.addToBackStack(null)
+                                ?.commit();
+                        }
+                        .padding(bottom = 40.dp, start = 45.dp, end = 45.dp),
+                    text = "Already have an account?",
+                    style = MaterialTheme.typography.body2,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colors.onBackground
+                )
+
                 Button(
                     modifier = Modifier
                         .padding(horizontal = 24.dp, vertical = 18.dp)

@@ -48,6 +48,8 @@ fun HermesTheme(
         LightColorPalette
     }
 
+    systemUiController.isSystemBarsVisible = false // Status & Navigation bars
+
     MaterialTheme(
         colors = colors,
         typography = HermesTypography,

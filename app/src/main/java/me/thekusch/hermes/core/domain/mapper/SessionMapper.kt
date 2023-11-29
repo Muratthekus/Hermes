@@ -7,14 +7,13 @@ import javax.inject.Inject
 class SessionMapper @Inject constructor() {
 
     fun mapOnVerifyOtpSuccess(
-        userSession: UserSession?,
-        name: String?
+        userSession: UserSession?
     ): UserInfoEntity? {
         userSession?.user?.let {
             with(it) {
                 return UserInfoEntity(
                     id = id,
-                    name = name.orEmpty(),
+                    name = it.userMetadata?.get("userValidName").toString(),
                     accountOwner = true,
                     email = email.orEmpty(),
                     confirmedAt = confirmedAt?.epochSeconds,

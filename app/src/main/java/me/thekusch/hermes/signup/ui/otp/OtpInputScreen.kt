@@ -44,6 +44,7 @@ import me.thekusch.hermes.ui.theme.HermesTheme
 import me.thekusch.hermes.core.widget.OtpTextField
 import me.thekusch.hermes.core.widget.Timer
 import me.thekusch.hermes.core.widget.getFieldIconTint
+import me.thekusch.hermes.home.ui.HomeScreen
 import me.thekusch.hermes.signup.ui.info.SignUpUiState
 import me.thekusch.hermes.ui.theme.Error
 
@@ -114,7 +115,10 @@ class OtpInputScreen : Fragment() {
             ) {
 
                 if (uiState == OtpInputUiState.Loading) {
-                    Box(Modifier.fillMaxSize().zIndex(1f)) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .zIndex(1f)) {
                         CircularProgressIndicator(
                             Modifier.align(Alignment.Center)
                         )
@@ -122,7 +126,13 @@ class OtpInputScreen : Fragment() {
                 }
 
                 if (uiState == OtpInputUiState.Success) {
-                    
+                    activity?.supportFragmentManager?.beginTransaction()
+                        ?.replace(
+                            R.id.container,
+                            HomeScreen.newInstance()
+                        )
+                        ?.addToBackStack(null)
+                        ?.commit()
                 }
 
                 Column(

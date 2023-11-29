@@ -10,11 +10,13 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.thekusch.hermes.core.domain.SessionManager
 import me.thekusch.hermes.core.datasource.local.model.Result
+import me.thekusch.hermes.signup.domain.OtpUseCase
 import javax.inject.Inject
 
+// TODO(murat) add OTP usecase, viewmodel should not access SessionManager
 @HiltViewModel
 class OtpInputViewModel @Inject constructor(
-    private val sessionManager: SessionManager
+    private val otpUseCase: OtpUseCase
 ) : ViewModel() {
 
     private lateinit var verifyJob: Job
@@ -34,7 +36,7 @@ class OtpInputViewModel @Inject constructor(
         }
 
         verifyJob = viewModelScope.launch {
-            sessionManager.verifySignUp(email, otp).collectLatest {
+            otpUseCase.verifySignUp(email, otp).collectLatest {
                 when (it) {
                     is Result.Started -> {
                         _otpUiState.value = OtpInputUiState.Loading
