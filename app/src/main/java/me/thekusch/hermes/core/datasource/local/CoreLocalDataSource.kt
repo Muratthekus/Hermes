@@ -11,4 +11,8 @@ class CoreLocalDataSource @Inject constructor(
     suspend fun saveUserToDB(userInfo: UserInfoEntity) {
         userDao.insertUser(userInfo)
     }
+
+    suspend fun getUserOrNull(): UserInfoEntity? {
+        return userDao.getUser().firstOrNull()
+    }
 }

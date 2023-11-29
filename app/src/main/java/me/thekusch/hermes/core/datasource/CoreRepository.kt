@@ -10,4 +10,6 @@ class CoreRepository @Inject constructor(
     suspend fun saveUserToDB(userInfo: UserInfoEntity) {
         coreLocalDataSource.saveUserToDB(userInfo)
     }
+
+    suspend fun getUserOrNull() = coreLocalDataSource.getUserOrNull()
 }

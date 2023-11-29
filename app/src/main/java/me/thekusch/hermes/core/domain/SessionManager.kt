@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.thekusch.hermes.core.datasource.CoreRepository
 import me.thekusch.hermes.core.datasource.local.cache.HermesLocalDataSource
 import me.thekusch.hermes.core.datasource.local.model.Result
@@ -41,7 +42,7 @@ class SessionManager @Inject constructor(
     private fun observeSessionChanges() {
         useCaseScope.launch(handler) {
             supabase.sessionStatus.collectLatest { status ->
-                when(status) {
+                when (status) {
                     is SessionStatus.Authenticated -> {
                         val userSession = status.session
                         val userName = hermesLocalDataSource.name
@@ -57,6 +58,7 @@ class SessionManager @Inject constructor(
                         }
 
                     }
+
                     else -> {
                         // no-op
                     }
@@ -65,12 +67,19 @@ class SessionManager @Inject constructor(
         }
     }
 
+    suspend fun isUserLoggedIn(): Boolean {
+        return withContext(Dispatchers.IO) {
+            val user = coreRepository.getUserOrNull()
+            user != null
+        }
+    }
+
     suspend fun verifySignUp(
         email: String,
         otp: String
     ): Flow<Result> = flow {
         emit(Result.Started)
-        val result = supabase.verifyEmailOtp(email,otp)
+        val result = supabase.verifyEmailOtp(email, otp)
 
         if (result)
             emit(Result.Success)
