@@ -14,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase
-): ViewModel() {
+) : ViewModel() {
 
     private val _loginUiState: MutableStateFlow<LoginUiState> =
         MutableStateFlow(LoginUiState.Init)
@@ -26,28 +26,27 @@ class LoginViewModel @Inject constructor(
         password: String
     ) {
         viewModelScope.launch {
-            viewModelScope.launch {
-                loginUseCase.login(email, password).collectLatest {
-                    when (it) {
-                        is Result.Started -> {
-                            _loginUiState.value = LoginUiState.Loading
-                        }
+            loginUseCase.login(email, password).collectLatest {
+                when (it) {
+                    is Result.Started -> {
+                        _loginUiState.value = LoginUiState.Loading
+                    }
 
-                        is Result.Success -> {
-                            _loginUiState.value = LoginUiState.Success
-                        }
+                    is Result.Success -> {
+                        _loginUiState.value = LoginUiState.Success
+                    }
 
-                        is Result.Fail -> {
-                            _loginUiState.value = LoginUiState.Error(it.exception.localizedMessage)
-                        }
+                    is Result.Fail -> {
+                        _loginUiState.value = LoginUiState.Error(it.exception.localizedMessage)
+                    }
 
-                        else -> {
-                            _loginUiState.value = LoginUiState.Error()
-                        }
+                    else -> {
+                        _loginUiState.value = LoginUiState.Error()
                     }
                 }
             }
         }
+
     }
 
 }
