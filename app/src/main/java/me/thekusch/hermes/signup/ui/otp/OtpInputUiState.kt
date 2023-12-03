@@ -6,7 +6,7 @@ sealed class OtpInputUiState {
 
     object Success: OtpInputUiState()
 
-    object Error: OtpInputUiState()
+    data class Error(val message: String? = null): OtpInputUiState()
 
     object Loading: OtpInputUiState()
 }
