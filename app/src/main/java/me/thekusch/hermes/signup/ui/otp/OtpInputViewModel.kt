@@ -1,8 +1,11 @@
 package me.thekusch.hermes.signup.ui.otp
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,6 +13,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.thekusch.hermes.core.domain.SessionManager
 import me.thekusch.hermes.core.datasource.local.model.Result
+import me.thekusch.hermes.core.util.OtpRequestLimitException
 import me.thekusch.hermes.signup.domain.OtpUseCase
 import javax.inject.Inject
 
@@ -26,6 +30,21 @@ class OtpInputViewModel @Inject constructor(
 
     val otpUiState: StateFlow<OtpInputUiState> = _otpUiState
 
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        if (throwable.cause is OtpRequestLimitException) {
+            return@CoroutineExceptionHandler
+        }
+        _otpUiState.value = OtpInputUiState.Error(throwable.localizedMessage)
+    }
+
+    fun resendOtp(email: String) {
+        viewModelScope.launch(exceptionHandler) {
+            _otpUiState.value = OtpInputUiState.Loading
+            otpUseCase.resendOtp(email)
+            _otpUiState.value = OtpInputUiState.Success
+        }
+    }
+
     fun verifyOtp(
         email: String,
         otp: String
@@ -35,7 +54,7 @@ class OtpInputViewModel @Inject constructor(
             verifyJob.cancel()
         }
 
-        verifyJob = viewModelScope.launch {
+        verifyJob = viewModelScope.launch(exceptionHandler) {
             otpUseCase.verifySignUp(email, otp).collectLatest {
                 when (it) {
                     is Result.Started -> {

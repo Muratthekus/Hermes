@@ -1,5 +1,9 @@
 package me.thekusch.hermes.core.domain
 
+import android.content.Context
+import androidx.lifecycle.viewModelScope
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import io.github.jan.supabase.gotrue.SessionStatus
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -12,9 +16,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.thekusch.hermes.core.datasource.CoreRepository
+import me.thekusch.hermes.core.datasource.local.cache.LocalCache
 import me.thekusch.hermes.core.datasource.local.model.Result
 import me.thekusch.hermes.core.datasource.supabase.Supabase
 import me.thekusch.hermes.core.domain.mapper.SessionMapper
+import me.thekusch.hermes.core.util.OtpRequestLimitException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,7 +28,9 @@ import javax.inject.Singleton
 class SessionManager @Inject constructor(
     private val supabase: Supabase,
     private val coreRepository: CoreRepository,
-    private val sessionMapper: SessionMapper
+    private val sessionMapper: SessionMapper,
+    private val localCache: LocalCache,
+    private val workerManager: HermesWorkerManager
 ) {
 
     // TODO(murat) impl EventBus
@@ -68,6 +76,18 @@ class SessionManager @Inject constructor(
         }
     }
 
+    @Throws(OtpRequestLimitException::class)
+    suspend fun resendOtp(email: String) {
+        workerManager.safeStartOtpRequestWorker()
+        localCache.increaseOtpRequestWithInThreshold()
+        if (localCache.isOtpRequestReachedThreshold()) {
+            throw OtpRequestLimitException()
+        }
+        withContext(Dispatchers.IO) {
+            supabase.resendOtp(email)
+        }
+    }
+
     suspend fun isUserLoggedIn(): Boolean {
         return withContext(Dispatchers.IO) {
             val user = coreRepository.getUserOrNull()
@@ -91,16 +111,24 @@ class SessionManager @Inject constructor(
         emit(Result.Fail(it))
     }
 
-
     suspend fun verifySignUp(
         email: String,
         otp: String
     ): Flow<Result> = flow {
         emit(Result.Started)
+        workerManager.safeStartOtpRequestWorker()
+        localCache.increaseOtpRequestWithInThreshold()
+        if (localCache.isOtpRequestReachedThreshold()) {
+            throw OtpRequestLimitException()
+        }
+
         val result = supabase.verifyEmailOtp(email, otp)
 
-        if (result)
+        if (result) {
+            // cancel any running otp worker if signup process is finished
+            workerManager.cancelOtpRequestWorker()
             emit(Result.Success)
+        }
         else
             emit(Result.Retry)
     }.catch {

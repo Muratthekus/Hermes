@@ -41,6 +41,16 @@ class Supabase @Inject constructor(
         return result?.email
     }
 
+    @Throws
+    suspend fun resendOtp(
+        email: String
+    ) {
+        val result = runCatching {
+            goTrue.resendEmail(OtpType.Email.SIGNUP, email)
+        }
+        result.getOrThrow()
+    }
+
     suspend fun signIn(
         email: String,
         password: String
@@ -75,11 +85,5 @@ class Supabase @Inject constructor(
             Log.d("HERMES", exception.localizedMessage?.toString() ?: "error")
             false
         }
-    }
-
-    suspend fun resendOtp(
-        email: String
-    ) {
-        goTrue.resendEmail(OtpType.Email.SIGNUP, email)
     }
 }
