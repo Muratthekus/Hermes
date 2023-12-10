@@ -3,6 +3,7 @@ package me.thekusch.hermes.signup.ui.info
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,8 +21,12 @@ class SignUpViewModel @Inject constructor(
 
     val signUpUiState: StateFlow<SignUpUiState> = _signUpUiState
 
+    private val signUpExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        _signUpUiState.value = SignUpUiState.Error(throwable.localizedMessage)
+    }
+
     fun signUpUser(name: String, email: String, password: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(signUpExceptionHandler) {
             _signUpUiState.value = SignUpUiState.Loading
             signUpUseCase.signUpUser(email, password, name)
             _signUpUiState.value = SignUpUiState.Success

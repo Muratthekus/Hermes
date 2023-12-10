@@ -1,10 +1,10 @@
-package me.thekusch.hermes.core.domain
+package me.thekusch.hermes.core.worker
 
 import android.content.Context
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import me.thekusch.hermes.core.datasource.local.cache.LocalCache
-import me.thekusch.hermes.core.domain.OtpRequestWorker.Companion.OTP_REQUEST_TAG
+import me.thekusch.hermes.core.worker.OtpRequestWorker.Companion.OTP_REQUEST_TAG
 import javax.inject.Inject
 
 class HermesWorkerManager @Inject constructor(
@@ -24,6 +24,8 @@ class HermesWorkerManager @Inject constructor(
     }
 
     fun cancelOtpRequestWorker() {
+        if (localCache.getOtpRequestWithInThreshold() > 0)
+            return
         workManager.cancelAllWorkByTag(OTP_REQUEST_TAG)
     }
 

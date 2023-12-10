@@ -26,19 +26,22 @@ class Supabase @Inject constructor(
             return goTrue.sessionStatus
         }
 
+    @Throws
     suspend fun signupUser(
         email: String,
         password: String,
         name: String
-    ): String? {
-        val result = goTrue.signUpWith(Email) {
-            this.email = email
-            this.password = password
-            data = buildJsonObject {
-                put("userValidName",name)
+    ) {
+        val result = runCatching {
+            goTrue.signUpWith(Email) {
+                this.email = email
+                this.password = password
+                data = buildJsonObject {
+                    put("userValidName",name)
+                }
             }
         }
-        return result?.email
+        result.getOrThrow()
     }
 
     @Throws

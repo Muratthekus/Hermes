@@ -1,9 +1,5 @@
 package me.thekusch.hermes.core.domain
 
-import android.content.Context
-import androidx.lifecycle.viewModelScope
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import io.github.jan.supabase.gotrue.SessionStatus
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -21,6 +17,7 @@ import me.thekusch.hermes.core.datasource.local.model.Result
 import me.thekusch.hermes.core.datasource.supabase.Supabase
 import me.thekusch.hermes.core.domain.mapper.SessionMapper
 import me.thekusch.hermes.core.util.OtpRequestLimitException
+import me.thekusch.hermes.core.worker.HermesWorkerManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -76,7 +73,21 @@ class SessionManager @Inject constructor(
         }
     }
 
-    @Throws(OtpRequestLimitException::class)
+    @Throws
+    suspend fun signUpUser(
+        email: String,
+        password: String,
+        name: String
+    ) {
+        workerManager.safeStartOtpRequestWorker()
+        localCache.increaseOtpRequestWithInThreshold()
+        if (localCache.isOtpRequestReachedThreshold()) {
+            throw OtpRequestLimitException()
+        }
+        supabase.signupUser(email, password, name)
+    }
+
+    @Throws
     suspend fun resendOtp(email: String) {
         workerManager.safeStartOtpRequestWorker()
         localCache.increaseOtpRequestWithInThreshold()
@@ -116,12 +127,6 @@ class SessionManager @Inject constructor(
         otp: String
     ): Flow<Result> = flow {
         emit(Result.Started)
-        workerManager.safeStartOtpRequestWorker()
-        localCache.increaseOtpRequestWithInThreshold()
-        if (localCache.isOtpRequestReachedThreshold()) {
-            throw OtpRequestLimitException()
-        }
-
         val result = supabase.verifyEmailOtp(email, otp)
 
         if (result) {

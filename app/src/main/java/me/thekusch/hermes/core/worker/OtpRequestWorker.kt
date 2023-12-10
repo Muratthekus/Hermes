@@ -1,4 +1,4 @@
-package me.thekusch.hermes.core.domain
+package me.thekusch.hermes.core.worker
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -12,7 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import me.thekusch.hermes.core.datasource.local.cache.LocalCache
 
 /**
  * OtpRequestWorker is a worker to prevent too many OTP request within a time period.
@@ -29,7 +28,10 @@ internal class OtpRequestWorker(
         return withContext(Dispatchers.Default) {
             try {
                 ensureActive()
-                delay(SUSPENSION_THRESHOLD_MILLIS)
+                val startTime = System.currentTimeMillis()
+                while (System.currentTimeMillis() - startTime < SUSPENSION_THRESHOLD_MILLIS) {
+                    delay(1000) // Check elapsed time every second
+                }
                 clearOtpRequestWithInThreshold()
                 Result.success()
             } catch (e: Exception) {

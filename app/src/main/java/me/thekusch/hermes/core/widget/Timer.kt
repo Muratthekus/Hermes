@@ -19,7 +19,7 @@ fun Timer(
     modifier: Modifier = Modifier,
     timeInMillis: Long,
     onFinishedText: String,
-    onReSendCode: (() -> Unit)? = null
+    onReSendCode: (() -> Unit)? = null,
 ) {
     val millisInFuture: Long = timeInMillis
 
@@ -53,6 +53,11 @@ fun Timer(
         modifier = modifier.clickable {
             if (isFinished) {
                 onReSendCode?.invoke()
+                with(countDownTimer) {
+                    cancel()
+                    start()
+                }
+                isFinished = isFinished.not()
             }
         },
         text = if (isFinished.not()) getAsMinutesAndSeconds(timeData) else onFinishedText,
