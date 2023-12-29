@@ -186,9 +186,12 @@ class OtpInputScreen : Fragment() {
                         .padding(bottom = 40.dp, start = 40.dp, end = 40.dp)
                         .alpha(if (uiState == OtpInputUiState.Loading) 0.3f else 1f)
                         .align(Alignment.BottomCenter),
-                    timeInMillis = 5 * 1000,
+                    timeInMillis = 180 * 1000,
                     onFinishedText = stringResource(id = R.string.otp_fragment_resend_title)
-                )
+                ) {
+                    otpText = ""
+                    viewModel.resendOtp(email)
+                }
 
                 if (uiState is OtpInputUiState.Error) {
                     ProcessErrorState(uiState = uiState as OtpInputUiState.Error)

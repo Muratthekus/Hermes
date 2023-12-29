@@ -9,4 +9,6 @@ class OtpUseCase @Inject constructor(
 
     suspend fun verifySignUp(email: String, otp: String) =
         sessionManager.verifySignUp(email, otp)
+
+    suspend fun resendOtp(email: String) = sessionManager.resendOtp(email)
 }

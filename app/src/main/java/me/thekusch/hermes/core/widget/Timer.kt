@@ -1,6 +1,7 @@
 package me.thekusch.hermes.core.widget
 
 import android.os.CountDownTimer
+import androidx.compose.foundation.clickable
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +19,7 @@ fun Timer(
     modifier: Modifier = Modifier,
     timeInMillis: Long,
     onFinishedText: String,
-    onFinishedAction: (() -> Unit)? = null
+    onReSendCode: (() -> Unit)? = null,
 ) {
     val millisInFuture: Long = timeInMillis
 
@@ -38,7 +39,6 @@ fun Timer(
 
             override fun onFinish() {
                 isFinished = true
-                onFinishedAction?.invoke()
             }
         }
 
@@ -50,7 +50,16 @@ fun Timer(
     }
 
     Text(
-        modifier = modifier,
+        modifier = modifier.clickable {
+            if (isFinished) {
+                onReSendCode?.invoke()
+                with(countDownTimer) {
+                    cancel()
+                    start()
+                }
+                isFinished = isFinished.not()
+            }
+        },
         text = if (isFinished.not()) getAsMinutesAndSeconds(timeData) else onFinishedText,
         style = MaterialTheme.typography.subtitle2,
         textAlign = TextAlign.Center,
