@@ -26,19 +26,32 @@ class Supabase @Inject constructor(
             return goTrue.sessionStatus
         }
 
+    @Throws
     suspend fun signupUser(
         email: String,
         password: String,
         name: String
-    ): String? {
-        val result = goTrue.signUpWith(Email) {
-            this.email = email
-            this.password = password
-            data = buildJsonObject {
-                put("userValidName",name)
+    ) {
+        val result = runCatching {
+            goTrue.signUpWith(Email) {
+                this.email = email
+                this.password = password
+                data = buildJsonObject {
+                    put("userValidName",name)
+                }
             }
         }
-        return result?.email
+        result.getOrThrow()
+    }
+
+    @Throws
+    suspend fun resendOtp(
+        email: String
+    ) {
+        val result = runCatching {
+            goTrue.resendEmail(OtpType.Email.SIGNUP, email)
+        }
+        result.getOrThrow()
     }
 
     suspend fun signIn(
@@ -75,11 +88,5 @@ class Supabase @Inject constructor(
             Log.d("HERMES", exception.localizedMessage?.toString() ?: "error")
             false
         }
-    }
-
-    suspend fun resendOtp(
-        email: String
-    ) {
-        goTrue.resendEmail(OtpType.Email.SIGNUP, email)
     }
 }

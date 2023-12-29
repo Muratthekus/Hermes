@@ -6,7 +6,7 @@ sealed class SignUpUiState {
 
     object Success: SignUpUiState()
 
-    object Error: SignUpUiState()
+    data class Error(val message: String?): SignUpUiState()
 
     object Loading: SignUpUiState()
 }
