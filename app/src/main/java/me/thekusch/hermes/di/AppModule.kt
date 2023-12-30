@@ -14,6 +14,8 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.GoTrue
 import me.thekusch.hermes.core.datasource.local.room.HermesDataBase
+import me.thekusch.hermes.core.datasource.local.room.dao.ChatDao
+import me.thekusch.hermes.core.datasource.local.room.dao.MessageDao
 import me.thekusch.hermes.core.datasource.local.room.dao.UserDao
 import javax.inject.Singleton
 
@@ -48,6 +50,16 @@ class AppModule {
     @Provides
     fun provideUserDao(database: HermesDataBase): UserDao {
         return database.userDao()
+    }
+
+    @Provides
+    fun provideMessageDao(database: HermesDataBase): MessageDao {
+        return database.messageDao()
+    }
+
+    @Provides
+    fun provideChatDao(database: HermesDataBase): ChatDao {
+        return database.chatDao()
     }
 
     @Provides

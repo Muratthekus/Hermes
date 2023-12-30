@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.thekusch.hermes.core.datasource.CoreRepository
+import me.thekusch.hermes.core.datasource.UserRepository
 import me.thekusch.hermes.core.datasource.local.cache.LocalCache
 import me.thekusch.hermes.core.datasource.local.model.Result
 import me.thekusch.hermes.core.datasource.supabase.Supabase
@@ -24,7 +24,7 @@ import javax.inject.Singleton
 @Singleton
 class SessionManager @Inject constructor(
     private val supabase: Supabase,
-    private val coreRepository: CoreRepository,
+    private val userRepository: UserRepository,
     private val sessionMapper: SessionMapper,
     private val localCache: LocalCache,
     private val workerManager: HermesWorkerManager
@@ -54,7 +54,7 @@ class SessionManager @Inject constructor(
                         )
 
                         data?.let {
-                            coreRepository.saveUserToDB(it)
+                            userRepository.saveUserToDB(it)
                         } ?: kotlin.run {
                             // TODO(murat) impl else block
                         }
@@ -101,7 +101,7 @@ class SessionManager @Inject constructor(
 
     suspend fun isUserLoggedIn(): Boolean {
         return withContext(Dispatchers.IO) {
-            val user = coreRepository.getUserOrNull()
+            val user = userRepository.getUserOrNull()
             user != null
         }
     }
