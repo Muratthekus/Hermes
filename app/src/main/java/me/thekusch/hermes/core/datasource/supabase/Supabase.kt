@@ -5,6 +5,7 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.GoTrue
 import io.github.jan.supabase.gotrue.OtpType
 import io.github.jan.supabase.gotrue.SessionStatus
+import io.github.jan.supabase.gotrue.admin.AdminApi
 import io.github.jan.supabase.gotrue.gotrue
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +20,11 @@ class Supabase @Inject constructor(
     private val goTrue: GoTrue
         get() {
             return supabase.gotrue
+        }
+
+    private val adminGoTrue: AdminApi
+        get() {
+            return goTrue.admin
         }
 
     val sessionStatus: StateFlow<SessionStatus>
@@ -37,7 +43,7 @@ class Supabase @Inject constructor(
                 this.email = email
                 this.password = password
                 data = buildJsonObject {
-                    put("userValidName",name)
+                    put("userValidName", name)
                 }
             }
         }
@@ -67,6 +73,13 @@ class Supabase @Inject constructor(
         } catch (exception: Exception) {
             false
         }
+    }
+
+    suspend fun deleteAccount(
+        userUid: String
+    ): Boolean {
+        adminGoTrue.deleteUser(userUid)
+        return true
     }
 
     suspend fun logout() {
