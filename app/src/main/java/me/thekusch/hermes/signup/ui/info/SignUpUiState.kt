@@ -1,4 +1,4 @@
-package me.thekusch.hermes.signup.ui
+package me.thekusch.hermes.signup.ui.info
 
 sealed class SignUpUiState {
 
@@ -6,7 +6,7 @@ sealed class SignUpUiState {
 
     object Success: SignUpUiState()
 
-    object Error: SignUpUiState()
+    data class Error(val message: String?): SignUpUiState()
 
     object Loading: SignUpUiState()
 }

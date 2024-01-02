@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,18 +32,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import me.thekusch.hermes.R
-import me.thekusch.hermes.signup.ui.register.RegisterScreen
+import me.thekusch.hermes.signup.ui.info.UserInfo
 import me.thekusch.hermes.ui.theme.HermesTheme
-import me.thekusch.hermes.util.widget.OtpTextField
-import me.thekusch.hermes.util.widget.Timer
-import me.thekusch.hermes.util.widget.getFieldIconTint
-
+import me.thekusch.hermes.core.widget.OtpTextField
+import me.thekusch.hermes.core.widget.Timer
+import me.thekusch.hermes.core.widget.getFieldIconTint
+import me.thekusch.hermes.home.ui.HomeScreen
+import me.thekusch.hermes.signup.ui.info.SignUpUiState
+import me.thekusch.hermes.ui.theme.Error
 
 @AndroidEntryPoint
 class OtpInputScreen : Fragment() {
@@ -110,12 +114,23 @@ class OtpInputScreen : Fragment() {
                 contentAlignment = Alignment.Center,
             ) {
 
-                if (uiState == OtpInputUiState.Loading)
-                    CircularProgressIndicator()
+                if (uiState == OtpInputUiState.Loading) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .zIndex(1f)) {
+                        CircularProgressIndicator(
+                            Modifier.align(Alignment.Center)
+                        )
+                    }
+                }
 
                 if (uiState == OtpInputUiState.Success) {
                     activity?.supportFragmentManager?.beginTransaction()
-                        ?.replace(R.id.container, RegisterScreen.newInstance())
+                        ?.replace(
+                            R.id.container,
+                            HomeScreen.newInstance()
+                        )
                         ?.addToBackStack(null)
                         ?.commit()
                 }
@@ -141,7 +156,10 @@ class OtpInputScreen : Fragment() {
                         modifier = Modifier
                             .padding(top = 16.dp, start = 40.dp, end = 40.dp),
                         text =
-                        stringResource(id = R.string.otp_fragment_subtitle, email),
+                        stringResource(
+                            id = R.string.otp_fragment_subtitle,
+                            email
+                        ),
                         style = MaterialTheme.typography.body2,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colors.onBackground
@@ -163,16 +181,39 @@ class OtpInputScreen : Fragment() {
                     )
                 }
 
-                Timer(modifier = Modifier
-                    .padding(bottom = 40.dp, start = 40.dp, end = 40.dp)
-                    .alpha(if (uiState == OtpInputUiState.Loading) 0.3f else 1f)
-                    .align(Alignment.BottomCenter),
-                    timeInMillis = 5 * 1000,
+                Timer(
+                    modifier = Modifier
+                        .padding(bottom = 40.dp, start = 40.dp, end = 40.dp)
+                        .alpha(if (uiState == OtpInputUiState.Loading) 0.3f else 1f)
+                        .align(Alignment.BottomCenter),
+                    timeInMillis = 180 * 1000,
                     onFinishedText = stringResource(id = R.string.otp_fragment_resend_title)
-                )
+                ) {
+                    otpText = ""
+                    viewModel.resendOtp(email)
+                }
+
+                if (uiState is OtpInputUiState.Error) {
+                    ProcessErrorState(uiState = uiState as OtpInputUiState.Error)
+                }
+
             }
 
         }
+    }
+
+    @Composable
+    private fun ProcessErrorState(uiState: OtpInputUiState.Error) {
+        val text =
+            if (uiState.message.isNullOrEmpty())
+                stringResource(id = R.string.otp_fragment_error_occurred)
+            else uiState.message
+        Text(
+            text = text,
+            style = MaterialTheme.typography.body1,
+            textAlign = TextAlign.Center,
+            color = Error
+        )
     }
 
     companion object {
