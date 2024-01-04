@@ -1,10 +1,12 @@
 package me.thekusch.hermes.home.ui
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,12 +16,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.SnackbarHost
+import androidx.compose.material.SnackbarHostState
+import androidx.compose.material.SnackbarResult
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
@@ -27,14 +40,27 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import me.thekusch.hermes.R
 import me.thekusch.hermes.core.widget.getFieldIconTint
+import me.thekusch.hermes.home.ui.component.CreateChat
+import me.thekusch.hermes.home.ui.component.CreateChatDialog
+import me.thekusch.hermes.home.ui.component.EmptyChat
+import me.thekusch.hermes.home.ui.component.UserChatHistoryList
 import me.thekusch.hermes.ui.theme.HermesTheme
 import me.thekusch.hermes.ui.theme.LightGray
+import me.thekusch.messager.Hermes
 
+@AndroidEntryPoint
 class HomeScreen : Fragment() {
 
     private lateinit var composeView: ComposeView
+
+    private val viewModel by viewModels<HomeViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,6 +74,8 @@ class HomeScreen : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Hermes.init(requireActivity(),viewModel::onPermissionNotGranted)
+        viewModel.initHermes(Hermes.getInstance())
         composeView.setContent {
             HermesTheme {
                 HomeContent()
@@ -57,6 +85,48 @@ class HomeScreen : Fragment() {
 
     @Composable
     fun HomeContent() {
+
+        val (showCreateConnection, setShowCreateConnection) =
+            remember { mutableStateOf(false) }
+        val listState = rememberLazyListState()
+        val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
+        val scope = rememberCoroutineScope()
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        LaunchedEffect(key1 = Unit, block = {
+            viewModel.getChatHistory()
+        })
+
+        LaunchedEffect(key1 = homeUiState) {
+            if ((homeUiState is HomeUiState.PermissionNotGranted).not())
+                return@LaunchedEffect
+
+            if (homeUiState.isPermissionNotGranted()) {
+                scope.launch {
+                    val result = snackbarHostState
+                        .showSnackbar(
+                            message = "All permissions should be granted",
+                            actionLabel = "Settings",
+                            // Defaults to SnackbarDuration.Short
+                            duration = SnackbarDuration.Indefinite
+                        )
+                    when (result) {
+                        SnackbarResult.ActionPerformed -> {
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            val uri =
+                                Uri.fromParts("package", requireContext().packageName, null)
+                            intent.data = uri
+                            startActivity(intent)
+                        }
+                        SnackbarResult.Dismissed -> {
+                            /* Handle snackbar dismissed */
+                        }
+
+                        else -> {}
+                    }
+                }
+            }
+        }
 
         Scaffold(
             modifier = Modifier.background(MaterialTheme.colors.background),
@@ -75,7 +145,7 @@ class HomeScreen : Fragment() {
                             color = MaterialTheme.colors.onBackground,
                             textAlign = TextAlign.Center
                         )
-                        IconButton(onClick = {}) {
+                        IconButton(onClick = { setShowCreateConnection(true) }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.create_chat),
                                 contentDescription = "create chat",
@@ -90,31 +160,52 @@ class HomeScreen : Fragment() {
                             .background(color = LightGray)
                     )
                 }
-
-            }
+            },
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
         ) { paddingValues ->
-            Column(
+
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colors.background)
-                    .padding(paddingValues)
-                    .padding(top = 20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
             ) {
-                Image(
-                    modifier = Modifier.fillMaxWidth(),
-                    painter =
-                    painterResource(id = R.drawable.example_scene_2_1),
-                    contentDescription = "example_screne"
-                )
 
-                Text(
-                    text = "There is no connection yet",
-                    style = MaterialTheme.typography.subtitle2,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colors.onBackground
-                )
+                if (homeUiState.isLoading())
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        CircularProgressIndicator()
+                    }
+
+                if (homeUiState.isEmptyChat())
+                    EmptyChat()
+
+                if (homeUiState.isCreateChat()) {
+                    val data = homeUiState as HomeUiState.CreateChat
+                    CreateChat(
+                        selectedMethod = data.selectedCreateChatMethod
+                    )
+                }
+
+                if (homeUiState.isSuccess()) {
+                    val data = homeUiState as HomeUiState.Success
+                    UserChatHistoryList(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp),
+                        chatList = data.chatHistory,
+                        state = listState
+                    ) { clickedChat ->
+
+                    }
+                }
+
+            }
+            if (showCreateConnection) {
+                CreateChatDialog(
+                    onDismiss = { setShowCreateConnection(false) }
+                ) {
+                    viewModel.createChat(it)
+                }
             }
         }
     }

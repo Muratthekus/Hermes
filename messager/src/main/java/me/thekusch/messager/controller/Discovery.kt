@@ -14,13 +14,12 @@ import com.google.android.gms.nearby.connection.PayloadCallback
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate
 import com.google.android.gms.nearby.connection.Strategy
 import me.thekusch.messager.DiscoveryStatusListener
-import me.thekusch.messager.Hermes
 import me.thekusch.messager.datasource.LocalDataSource
 
 
 internal class Discovery {
 
-    private var strategy = Strategy.P2P_CLUSTER
+    private var strategy = Strategy.P2P_POINT_TO_POINT
     lateinit var listener: DiscoveryStatusListener
     private val localDataSource = LocalDataSource
 

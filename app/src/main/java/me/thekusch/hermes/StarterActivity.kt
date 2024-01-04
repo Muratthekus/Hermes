@@ -33,7 +33,7 @@ class StarterActivity : AppCompatActivity() {
     private fun setupViewModel() {
         with(viewModel) {
             lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                repeatOnLifecycle(Lifecycle.State.RESUMED) {
                     checkIfUserLoggedIn()
                     isUserLoggedIn.collect { loggedIn ->
                         if (loggedIn == true) {

@@ -15,7 +15,7 @@ import me.thekusch.messager.util.Role
 internal typealias DiscoveryStatusListener = ((BaseStatus) -> Unit)
 internal typealias AdvertiseStatusListener = ((BaseStatus) -> Unit)
 
-public class Hermes public constructor(
+public class Hermes private constructor(
     private val activity: FragmentActivity,
     permissionNotGrantedHandler: () -> Unit
 ) {
@@ -31,7 +31,7 @@ public class Hermes public constructor(
     private var discovery = Discovery()
     private val localDataSource = LocalDataSource
 
-    init {
+    public fun init() {
         checkLocationPermission()
         checkBluetoothPermissions()
         checkWifiPermissions()
@@ -106,5 +106,25 @@ public class Hermes public constructor(
 
     private fun checkWifiPermissions() {
         wifiManager.checkWifiPermission()
+    }
+
+    public companion object {
+        private var instance: Hermes? = null
+
+        public fun init(
+            activity: FragmentActivity,
+            permissionNotGrantedHandler: () -> Unit
+        ): Hermes {
+            if (instance != null)
+                return instance!!
+
+            instance = Hermes(activity, permissionNotGrantedHandler)
+            return instance!!
+        }
+
+        public fun getInstance(): Hermes {
+            requireNotNull(instance) {"SingletonClass must be initialized before accessing the instance."}
+            return instance!!
+        }
     }
 }

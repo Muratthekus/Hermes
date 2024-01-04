@@ -28,5 +28,6 @@ data class MessageEntity(
     val chatId: Long,
     val content: String?,
     val voiceRecordPath: String?,
-    val createdAt: Long
+    val createdAt: Long,
+    val seen: Boolean
 )

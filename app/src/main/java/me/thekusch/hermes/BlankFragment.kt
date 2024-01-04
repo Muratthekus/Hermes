@@ -59,7 +59,7 @@ class BlankFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val hermes = Hermes(requireActivity(), ::onPermissionNotGranted)
+        val hermes = Hermes.init(requireActivity(), ::onPermissionNotGranted)
         composeView.setContent {
             HomeScreen(hermes = hermes)
         }
