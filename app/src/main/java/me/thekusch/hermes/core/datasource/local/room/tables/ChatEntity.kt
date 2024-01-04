@@ -10,6 +10,8 @@ import androidx.room.Relation
 data class ChatEntity(
     @PrimaryKey val id: Long,
     val createdAt: Long,
+    val updatedAt: Long,
+    val hasPendingMessages: Boolean = false,
     val slug: String,
 )
 
@@ -32,8 +34,13 @@ data class ChatWithParticipants(
     @Embedded val chat: ChatEntity,
     @Relation(
         parentColumn = "id",
-        entityColumn = "chatId",
-        associateBy = Junction(UserChatCrossRef::class)
+        entityColumn = "id",
+        entity = UserInfoEntity::class,
+        associateBy = Junction(
+            value = UserChatCrossRef::class,
+            parentColumn = "chatId",
+            entityColumn = "userId"
+        )
     )
     val participants: List<UserInfoEntity>
 )

@@ -7,6 +7,7 @@ import me.thekusch.hermes.core.datasource.local.room.HermesDataBase
 import me.thekusch.hermes.core.datasource.local.room.dao.ChatDao
 import me.thekusch.hermes.core.datasource.local.room.dao.MessageDao
 import me.thekusch.hermes.core.datasource.local.room.dao.UserDao
+import me.thekusch.hermes.core.datasource.local.room.tables.ChatEntity
 import me.thekusch.hermes.core.datasource.local.room.tables.MessageEntity
 import me.thekusch.hermes.core.datasource.local.room.tables.UserInfoEntity
 import javax.inject.Inject
@@ -24,6 +25,10 @@ class CoreLocalDataSource @Inject constructor(
 
     suspend fun getUserOrNull(): UserInfoEntity? {
         return userDao.getUser().firstOrNull()
+    }
+
+    suspend fun getChatHistory(): List<ChatEntity>? {
+        return chatDao.getChats()
     }
 
     suspend fun getChatMessagesWithCleanup(chatId: Long): List<MessageEntity>? {
