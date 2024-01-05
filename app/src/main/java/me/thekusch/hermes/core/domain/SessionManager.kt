@@ -16,6 +16,7 @@ import me.thekusch.hermes.core.datasource.local.cache.LocalCache
 import me.thekusch.hermes.core.datasource.local.model.Result
 import me.thekusch.hermes.core.datasource.supabase.Supabase
 import me.thekusch.hermes.core.domain.mapper.SessionMapper
+import me.thekusch.hermes.core.domain.model.User
 import me.thekusch.hermes.core.util.OtpRequestLimitException
 import me.thekusch.hermes.core.worker.HermesWorkerManager
 import javax.inject.Inject
@@ -99,6 +100,17 @@ class SessionManager @Inject constructor(
         }
     }
 
+    suspend fun getCurrentUser(): User? {
+        return withContext(Dispatchers.IO) {
+            val user = userRepository.getUserOrNull()
+            user?.let { entity ->
+                sessionMapper.mapOnGetUser(entity)
+            } ?: kotlin.run {
+                null
+            }
+        }
+    }
+
     suspend fun isUserLoggedIn(): Boolean {
         return withContext(Dispatchers.IO) {
             val user = userRepository.getUserOrNull()
@@ -133,8 +145,7 @@ class SessionManager @Inject constructor(
             // cancel any running otp worker if signup process is finished
             workerManager.cancelOtpRequestWorker()
             emit(Result.Success)
-        }
-        else
+        } else
             emit(Result.Retry)
     }.catch {
         emit(Result.Fail(it))

@@ -7,7 +7,7 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
-class ChatMapper @Inject constructor() {
+class HomeMapper @Inject constructor() {
 
     fun mapOnGetChatHistory(entity: ChatEntity): Chat {
         return Chat(

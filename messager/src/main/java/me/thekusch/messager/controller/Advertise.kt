@@ -28,7 +28,7 @@ internal class Advertise {
 
         connectionsClient.stopDiscovery()
 
-        listener.invoke(BaseStatus.Loading)
+        listener.invoke(AdvertiseStatus.Loading)
 
         val advertisingOptions = AdvertisingOptions
             .Builder()
@@ -71,7 +71,7 @@ internal class Advertise {
             override fun onConnectionInitiated(endpointId: String, connectionInfo: ConnectionInfo) {
                 // Automatically accept the connection on both sides.
                 listener.invoke(
-                    BaseStatus.ConnectionInitiated(
+                    AdvertiseStatus.ConnectionInitiated(
                         endpointId, connectionInfo.endpointName
                     )
                 )
@@ -81,24 +81,24 @@ internal class Advertise {
                 when (result.status.statusCode) {
                     ConnectionsStatusCodes.STATUS_OK -> {
                         listener.invoke(
-                            BaseStatus.ConnectionResultStatus(
-                                BaseStatus.ConnectionResultStatus.CONNECTED
+                            AdvertiseStatus.ConnectionResultStatus(
+                                AdvertiseStatus.ConnectionResultStatus.CONNECTED
                             )
                         )
                     }
 
                     ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED -> {
                         listener.invoke(
-                            BaseStatus.ConnectionResultStatus(
-                                BaseStatus.ConnectionResultStatus.REJECTED
+                            AdvertiseStatus.ConnectionResultStatus(
+                                AdvertiseStatus.ConnectionResultStatus.REJECTED
                             )
                         )
                     }
 
                     ConnectionsStatusCodes.STATUS_ERROR -> {
                         listener.invoke(
-                            BaseStatus.ConnectionResultStatus(
-                                BaseStatus.ConnectionResultStatus.ERROR
+                            AdvertiseStatus.ConnectionResultStatus(
+                                AdvertiseStatus.ConnectionResultStatus.ERROR
                             )
                         )
                     }
@@ -111,7 +111,7 @@ internal class Advertise {
 
             override fun onDisconnected(endpointId: String) {
                 listener.invoke(
-                    BaseStatus.Disconnected
+                    AdvertiseStatus.Disconnected
                 )
             }
         }

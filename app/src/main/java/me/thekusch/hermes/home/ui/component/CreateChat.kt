@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +29,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import me.thekusch.messager.controller.AdvertiseStatus
+import me.thekusch.messager.controller.BaseStatus
 
 enum class CreateChatMethod {
     DISCOVER,
@@ -37,11 +40,14 @@ enum class CreateChatMethod {
 @Composable
 private fun CreateChatWithAdvertise(
     modifier: Modifier = Modifier,
+    advertiseStatus: AdvertiseStatus,
+    onDismiss: () -> Unit
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+
         PulseLoading()
 
         Text(
@@ -49,7 +55,8 @@ private fun CreateChatWithAdvertise(
                 .fillMaxWidth()
                 .padding(top = 12.dp, start = 24.dp, end = 24.dp)
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 46.dp),
+                .padding(bottom = 46.dp)
+                .clickable { onDismiss() },
             text = "Let's wave to everyone around. Wait until someone wave back",
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.subtitle1,
@@ -68,10 +75,15 @@ private fun CreateSearchWithDiscover(
 @Composable
 fun CreateChat(
     modifier: Modifier = Modifier,
-    selectedMethod: CreateChatMethod
+    selectedMethod: CreateChatMethod,
+    hermesState: BaseStatus,
+    onDismiss: () -> Unit
 ) {
     if (selectedMethod == CreateChatMethod.ADVERTISE) {
-        CreateChatWithAdvertise()
+        CreateChatWithAdvertise(
+            advertiseStatus = hermesState as AdvertiseStatus,
+            onDismiss = onDismiss
+        )
         return
     }
     CreateSearchWithDiscover()

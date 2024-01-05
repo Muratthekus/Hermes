@@ -3,8 +3,10 @@ package me.thekusch.messager
 import android.content.Context
 import androidx.fragment.app.FragmentActivity
 import me.thekusch.messager.controller.Advertise
+import me.thekusch.messager.controller.AdvertiseStatus
 import me.thekusch.messager.controller.BaseStatus
 import me.thekusch.messager.controller.Discovery
+import me.thekusch.messager.controller.DiscoveryStatus
 import me.thekusch.messager.datasource.LocalDataSource
 import me.thekusch.messager.permission.BluetoothManager
 import me.thekusch.messager.permission.LocationManager
@@ -31,14 +33,14 @@ public class Hermes private constructor(
     private var discovery = Discovery()
     private val localDataSource = LocalDataSource
 
-    init {
+    public fun build() {
         checkLocationPermission()
         checkBluetoothPermissions()
         checkWifiPermissions()
         localDataSource.init(activity.applicationContext)
     }
 
-    public fun setUserName(username: String) {
+    public fun setUsername(username: String) {
         localDataSource.username = username
     }
 

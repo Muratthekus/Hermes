@@ -44,7 +44,7 @@ internal class Discovery {
     internal fun startDiscovery(
         context: Context
     ) {
-        listener.invoke(BaseStatus.Loading)
+        listener.invoke(DiscoveryStatus.Loading)
 
         val connectionsClient = Nearby.getConnectionsClient(context)
         connectionsClient.stopAdvertising()
@@ -62,7 +62,7 @@ internal class Discovery {
             }
             .addOnFailureListener {
                 listener.invoke(
-                    DiscoveryStatus.DiscoveryFailed
+                    DiscoveryStatus.DiscoveryFailed(it)
                 )
             }
     }
@@ -102,7 +102,7 @@ internal class Discovery {
             override fun onConnectionInitiated(endpointId: String, connectionInfo: ConnectionInfo) {
                 // Automatically accept the connection on both sides.
                 listener.invoke(
-                    BaseStatus.ConnectionInitiated(
+                    DiscoveryStatus.ConnectionInitiated(
                         endpointId, connectionInfo.endpointName
                     )
                 )
@@ -112,24 +112,24 @@ internal class Discovery {
                 when (result.status.statusCode) {
                     ConnectionsStatusCodes.STATUS_OK -> {
                         listener.invoke(
-                            BaseStatus.ConnectionResultStatus(
-                                BaseStatus.ConnectionResultStatus.CONNECTED
+                            DiscoveryStatus.ConnectionResultStatus(
+                                DiscoveryStatus.ConnectionResultStatus.CONNECTED
                             )
                         )
                     }
 
                     ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED -> {
                         listener.invoke(
-                            BaseStatus.ConnectionResultStatus(
-                                BaseStatus.ConnectionResultStatus.REJECTED
+                            DiscoveryStatus.ConnectionResultStatus(
+                                DiscoveryStatus.ConnectionResultStatus.REJECTED
                             )
                         )
                     }
 
                     ConnectionsStatusCodes.STATUS_ERROR -> {
                         listener.invoke(
-                            BaseStatus.ConnectionResultStatus(
-                                BaseStatus.ConnectionResultStatus.ERROR
+                            DiscoveryStatus.ConnectionResultStatus(
+                                DiscoveryStatus.ConnectionResultStatus.ERROR
                             )
                         )
                     }
@@ -140,7 +140,7 @@ internal class Discovery {
 
             override fun onDisconnected(endpointId: String) {
                 listener.invoke(
-                    BaseStatus.Disconnected
+                    DiscoveryStatus.Disconnected
                 )
             }
         }

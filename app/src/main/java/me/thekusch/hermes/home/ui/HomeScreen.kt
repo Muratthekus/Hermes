@@ -43,6 +43,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import me.thekusch.hermes.R
 import me.thekusch.hermes.core.widget.getFieldIconTint
@@ -73,8 +74,7 @@ class HomeScreen : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Hermes.init(requireActivity(),viewModel::onPermissionNotGranted)
-        viewModel.initHermes(Hermes.getInstance())
+        viewModel.initHermes(requireActivity())
         composeView.setContent {
             HermesTheme {
                 HomeContent()
@@ -88,44 +88,14 @@ class HomeScreen : Fragment() {
         val (showCreateConnection, setShowCreateConnection) =
             remember { mutableStateOf(false) }
         val listState = rememberLazyListState()
-        val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
+
+        val homeState by viewModel.homeState.collectAsStateWithLifecycle()
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
 
         LaunchedEffect(key1 = Unit, block = {
             viewModel.getChatHistory()
         })
-
-        LaunchedEffect(key1 = homeUiState) {
-            if ((homeUiState is HomeUiState.PermissionNotGranted).not())
-                return@LaunchedEffect
-
-            if (homeUiState.isPermissionNotGranted()) {
-                scope.launch {
-                    val result = snackbarHostState
-                        .showSnackbar(
-                            message = "All permissions should be granted",
-                            actionLabel = "Settings",
-                            // Defaults to SnackbarDuration.Short
-                            duration = SnackbarDuration.Indefinite
-                        )
-                    when (result) {
-                        SnackbarResult.ActionPerformed -> {
-                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                            val uri =
-                                Uri.fromParts("package", requireContext().packageName, null)
-                            intent.data = uri
-                            startActivity(intent)
-                        }
-                        SnackbarResult.Dismissed -> {
-                            /* Handle snackbar dismissed */
-                        }
-
-                        else -> {}
-                    }
-                }
-            }
-        }
 
         Scaffold(
             modifier = Modifier.background(MaterialTheme.colors.background),
@@ -170,23 +140,26 @@ class HomeScreen : Fragment() {
                 contentAlignment = Alignment.Center
             ) {
 
-                if (homeUiState.isLoading())
+                if (homeState.uiState.isLoading())
                     Box(modifier = Modifier.fillMaxSize()) {
                         CircularProgressIndicator()
                     }
 
-                if (homeUiState.isEmptyChat())
+                if (homeState.uiState.isEmptyChat())
                     EmptyChat()
 
-                if (homeUiState.isCreateChat()) {
-                    val data = homeUiState as HomeUiState.CreateChat
+                if (homeState.uiState.isCreateChat()) {
+                    val data = homeState.uiState as HomeUiState.CreateChat
                     CreateChat(
-                        selectedMethod = data.selectedCreateChatMethod
-                    )
+                        selectedMethod = data.selectedCreateChatMethod,
+                        hermesState = homeState.hermesState
+                    ) {
+                        viewModel.dismissCreateChat()
+                    }
                 }
 
-                if (homeUiState.isSuccess()) {
-                    val data = homeUiState as HomeUiState.Success
+                if (homeState.uiState.isSuccess()) {
+                    val data = homeState.uiState as HomeUiState.Success
                     UserChatHistoryList(
                         modifier = Modifier
                             .fillMaxSize()
@@ -206,6 +179,67 @@ class HomeScreen : Fragment() {
                     }
                 }
 
+                CheckPermission(homeState.permissionUiState, scope, snackbarHostState)
+                GetError(homeState.errorState, scope, snackbarHostState)
+
+            }
+        }
+    }
+
+    @Composable
+    private fun GetError(
+        errorState: String,
+        scope: CoroutineScope,
+        snackbarHostState: SnackbarHostState
+    ) {
+        LaunchedEffect(key1 = errorState) {
+            if (errorState.isEmpty())
+                return@LaunchedEffect
+
+            scope.launch {
+                snackbarHostState
+                    .showSnackbar(
+                        message = errorState,
+                        actionLabel = "Dismiss",
+                        duration = SnackbarDuration.Short
+                    )
+            }
+        }
+    }
+
+    @Composable
+    private fun CheckPermission(
+        permissionUiState: Boolean,
+        scope: CoroutineScope,
+        snackbarHostState: SnackbarHostState
+    ) {
+        LaunchedEffect(key1 = permissionUiState) {
+            if (permissionUiState)
+                return@LaunchedEffect
+
+            scope.launch {
+                val result = snackbarHostState
+                    .showSnackbar(
+                        message = "All permissions should be granted",
+                        actionLabel = "Settings",
+                        // Defaults to SnackbarDuration.Short
+                        duration = SnackbarDuration.Indefinite
+                    )
+                when (result) {
+                    SnackbarResult.ActionPerformed -> {
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                        val uri =
+                            Uri.fromParts("package", requireContext().packageName, null)
+                        intent.data = uri
+                        startActivity(intent)
+                    }
+
+                    SnackbarResult.Dismissed -> {
+                        /* Handle snackbar dismissed */
+                    }
+
+                    else -> {}
+                }
             }
         }
     }

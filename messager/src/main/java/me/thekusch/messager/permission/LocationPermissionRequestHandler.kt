@@ -38,7 +38,6 @@ internal class LocationPermissionRequestHandler(
                         break
                     }
                 }
-                //isAllPermitted = permissions.getOrDefault(requestLocationPermission,false)
                 onPermissionResult(isAllPermitted)
             }
     }
