@@ -31,12 +31,14 @@ internal class LocationPermissionRequestHandler(
                 requestLocationPermission, owner,
                 ActivityResultContracts.RequestMultiplePermissions()
             ) { permissions ->
-                var isAllPermitted: Boolean = false
-                if (permissions.toList().isEmpty()) {
-                    isAllPermitted = true
-                    return@register
+                var isAllPermitted: Boolean = true
+                for (permission in permissions) {
+                    if (!permission.value) {
+                        isAllPermitted = false
+                        break
+                    }
                 }
-                isAllPermitted = permissions.getOrDefault(requestLocationPermission,false)
+                //isAllPermitted = permissions.getOrDefault(requestLocationPermission,false)
                 onPermissionResult(isAllPermitted)
             }
     }

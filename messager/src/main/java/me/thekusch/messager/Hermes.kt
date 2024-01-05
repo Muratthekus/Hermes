@@ -31,7 +31,7 @@ public class Hermes private constructor(
     private var discovery = Discovery()
     private val localDataSource = LocalDataSource
 
-    public fun init() {
+    init {
         checkLocationPermission()
         checkBluetoothPermissions()
         checkWifiPermissions()
@@ -123,7 +123,7 @@ public class Hermes private constructor(
         }
 
         public fun getInstance(): Hermes {
-            requireNotNull(instance) {"SingletonClass must be initialized before accessing the instance."}
+            requireNotNull(instance) { "SingletonClass must be initialized before accessing the instance." }
             return instance!!
         }
     }

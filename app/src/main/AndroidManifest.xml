@@ -26,10 +26,12 @@
             <meta-data android:name="photopicker_activity:0:required" android:value="" />
         </service>
 
-        <activity android:name=".home.ui.HomeActivity"/>
+        <activity android:name=".home.ui.HomeActivity"
+            android:theme="@style/Theme.Hermes"/>
 
         <activity
             android:name=".StarterActivity"
+            android:theme="@style/Theme.Hermes"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,5 +1,6 @@
 package me.thekusch.hermes.login.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -41,6 +42,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import me.thekusch.hermes.R
 import me.thekusch.hermes.core.widget.getFieldIconTint
 import me.thekusch.hermes.core.widget.provideTextFieldColors
+import me.thekusch.hermes.home.ui.HomeActivity
 import me.thekusch.hermes.home.ui.HomeScreen
 import me.thekusch.hermes.signup.ui.info.SignUpUiState
 import me.thekusch.hermes.signup.ui.otp.OtpInputScreen
@@ -86,13 +88,13 @@ class LoginScreen: Fragment() {
 
         ) { paddingValues ->
             if (uiState == LoginUiState.Success) {
-                activity?.supportFragmentManager?.beginTransaction()
-                    ?.replace(
-                        R.id.container,
-                        HomeScreen.newInstance()
+                requireActivity().startActivity(
+                    Intent(
+                        requireContext(),
+                        HomeActivity::class.java
                     )
-                    ?.addToBackStack(null)
-                    ?.commit()
+                )
+                requireActivity().finish()
             }
 
             Box(

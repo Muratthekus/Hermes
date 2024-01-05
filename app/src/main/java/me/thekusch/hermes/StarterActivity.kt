@@ -13,6 +13,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.thekusch.hermes.home.ui.HomeActivity
 import me.thekusch.hermes.home.ui.HomeScreen
+import me.thekusch.hermes.intro.ui.IntroFragment
 
 
 @OptIn(ExperimentalPagerApi::class)
@@ -39,18 +40,19 @@ class StarterActivity : AppCompatActivity() {
                     checkIfUserLoggedIn()
                     isUserLoggedIn.collect { loggedIn ->
                         if (loggedIn == true) {
-                            supportFragmentManager
-                                .beginTransaction()
-                                .add(R.id.container, HomeScreen.newInstance())
-                                .commit()
-                        }
-                        if (loggedIn == false) {
                             this@StarterActivity.startActivity(
                                 Intent(
                                     this@StarterActivity,
                                     HomeActivity::class.java
                                 )
                             )
+                            finish()
+                        }
+                        if (loggedIn == false) {
+                            supportFragmentManager
+                                .beginTransaction()
+                                .add(R.id.container, IntroFragment.newInstance())
+                                .commit()
                         }
                     }
                 }

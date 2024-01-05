@@ -52,6 +52,7 @@ import me.thekusch.hermes.home.ui.component.EmptyChat
 import me.thekusch.hermes.home.ui.component.UserChatHistoryList
 import me.thekusch.hermes.ui.theme.HermesTheme
 import me.thekusch.hermes.ui.theme.LightGray
+import me.thekusch.messager.Hermes
 
 @AndroidEntryPoint
 class HomeScreen : Fragment() {
@@ -72,8 +73,8 @@ class HomeScreen : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //Hermes.init(requireActivity(),viewModel::onPermissionNotGranted)
-        //viewModel.initHermes(Hermes.getInstance())
+        Hermes.init(requireActivity(),viewModel::onPermissionNotGranted)
+        viewModel.initHermes(Hermes.getInstance())
         composeView.setContent {
             HermesTheme {
                 HomeContent()
