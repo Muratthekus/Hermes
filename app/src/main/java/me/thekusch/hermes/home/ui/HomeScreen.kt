@@ -74,7 +74,9 @@ class HomeScreen : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.initHermes(requireActivity())
+        viewModel.initHermes(
+            Hermes.init(requireActivity(), viewModel::onPermissionNotGranted)
+        )
         composeView.setContent {
             HermesTheme {
                 HomeContent()
@@ -201,7 +203,7 @@ class HomeScreen : Fragment() {
                     .showSnackbar(
                         message = errorState,
                         actionLabel = "Dismiss",
-                        duration = SnackbarDuration.Short
+                        duration = SnackbarDuration.Long
                     )
             }
         }
@@ -223,7 +225,7 @@ class HomeScreen : Fragment() {
                         message = "All permissions should be granted",
                         actionLabel = "Settings",
                         // Defaults to SnackbarDuration.Short
-                        duration = SnackbarDuration.Indefinite
+                        duration = SnackbarDuration.Long
                     )
                 when (result) {
                     SnackbarResult.ActionPerformed -> {

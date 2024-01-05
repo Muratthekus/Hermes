@@ -1,11 +1,10 @@
 package me.thekusch.hermes.home.ui
 
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -31,7 +30,7 @@ class HomeViewModel @Inject constructor(
         MutableStateFlow(HomeUiState.Init)
 
     private val _permissionState: MutableStateFlow<Boolean> =
-        MutableStateFlow(false)
+        MutableStateFlow(true)
 
     private val _hermesState: MutableStateFlow<BaseStatus> =
         MutableStateFlow(BaseStatus.Initial)
@@ -91,14 +90,14 @@ class HomeViewModel @Inject constructor(
     private lateinit var hermes: Hermes
 
     //TODO(murat) save if user rejected or accepted requests, observe permission changes
-    fun initHermes(activity: FragmentActivity) {
-        hermes = Hermes.init(activity, ::onPermissionNotGranted)
+    fun initHermes(hermes: Hermes) {
         viewModelScope.launch(homeExceptionHandler) {
-            val user = homeUseCase.getCurrentUser()
+            val user = async { homeUseCase.getCurrentUser() }.await()
             requireNotNull(user) { "User record can not be found thus Hermes couldn't initialize" }
 
-            hermes.setUsername(user.name)
-            hermes.build()
+            this@HomeViewModel.hermes = hermes
+            this@HomeViewModel.hermes.build()
+            this@HomeViewModel.hermes.setUsername(user.name)
             setHermesListeners()
         }
     }
@@ -142,7 +141,7 @@ class HomeViewModel @Inject constructor(
         _errorState.value = throwable.localizedMessage?.toString() ?: "Unexpected error occured"
     }
 
-    private fun onPermissionNotGranted() {
+    fun onPermissionNotGranted() {
         viewModelScope.launch {
             _permissionState.value = false
         }
