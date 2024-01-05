@@ -1,5 +1,6 @@
 package me.thekusch.hermes
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -10,8 +11,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import me.thekusch.hermes.home.ui.HomeActivity
 import me.thekusch.hermes.home.ui.HomeScreen
-import me.thekusch.hermes.intro.ui.IntroFragment
+
 
 @OptIn(ExperimentalPagerApi::class)
 @AndroidEntryPoint
@@ -43,10 +45,12 @@ class StarterActivity : AppCompatActivity() {
                                 .commit()
                         }
                         if (loggedIn == false) {
-                            supportFragmentManager
-                                .beginTransaction()
-                                .add(R.id.container, IntroFragment.newInstance())
-                                .commit()
+                            this@StarterActivity.startActivity(
+                                Intent(
+                                    this@StarterActivity,
+                                    HomeActivity::class.java
+                                )
+                            )
                         }
                     }
                 }

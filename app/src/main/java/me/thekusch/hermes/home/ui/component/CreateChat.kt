@@ -6,10 +6,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,7 +28,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import me.thekusch.messager.Hermes
 
 enum class CreateChatMethod {
     DISCOVER,
@@ -92,8 +88,8 @@ fun CreateChatDialog(
         AlertDialog(
             modifier = modifier,
             onDismissRequest = {
-                openDialog = false
                 onDismiss()
+                openDialog = false
             },
             title = {
                 Text(text = "Create Chat")
@@ -105,6 +101,8 @@ fun CreateChatDialog(
                 Button(
                     onClick = {
                         onCreateChatMethodSelect(CreateChatMethod.DISCOVER)
+                        onDismiss()
+                        openDialog = false
                     }) {
                     Text("Discover")
                 }
@@ -113,6 +111,8 @@ fun CreateChatDialog(
                 Button(
                     onClick = {
                         onCreateChatMethodSelect(CreateChatMethod.ADVERTISE)
+                        onDismiss()
+                        openDialog = false
                     }) {
                     Text("Advertiese")
                 }

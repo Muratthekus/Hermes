@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.thekusch.hermes.R
@@ -53,7 +52,6 @@ import me.thekusch.hermes.home.ui.component.EmptyChat
 import me.thekusch.hermes.home.ui.component.UserChatHistoryList
 import me.thekusch.hermes.ui.theme.HermesTheme
 import me.thekusch.hermes.ui.theme.LightGray
-import me.thekusch.messager.Hermes
 
 @AndroidEntryPoint
 class HomeScreen : Fragment() {
@@ -74,8 +72,8 @@ class HomeScreen : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Hermes.init(requireActivity(),viewModel::onPermissionNotGranted)
-        viewModel.initHermes(Hermes.getInstance())
+        //Hermes.init(requireActivity(),viewModel::onPermissionNotGranted)
+        //viewModel.initHermes(Hermes.getInstance())
         composeView.setContent {
             HermesTheme {
                 HomeContent()
@@ -199,13 +197,14 @@ class HomeScreen : Fragment() {
                     }
                 }
 
-            }
-            if (showCreateConnection) {
-                CreateChatDialog(
-                    onDismiss = { setShowCreateConnection(false) }
-                ) {
-                    viewModel.createChat(it)
+                if (showCreateConnection) {
+                    CreateChatDialog(
+                        onDismiss = { setShowCreateConnection(false) }
+                    ) {
+                        viewModel.createChat(it)
+                    }
                 }
+
             }
         }
     }
