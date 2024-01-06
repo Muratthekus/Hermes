@@ -23,10 +23,19 @@ internal class Discovery {
     lateinit var listener: DiscoveryStatusListener
     private val localDataSource = LocalDataSource
 
-    internal fun stopDiscovery(context: Context) {
+    internal fun disconnect(context: Context) {
+        listener.invoke(BaseStatus.Disconnected)
+        stopDiscovery(context)
+    }
+
+    internal fun dismiss(context: Context) {
+        listener.invoke(BaseStatus.Dismissed)
+        stopDiscovery(context)
+    }
+
+    private fun stopDiscovery(context: Context) {
         Nearby.getConnectionsClient(context)
             .stopDiscovery()
-        listener.invoke(BaseStatus.Dismissed)
     }
 
 
@@ -63,12 +72,12 @@ internal class Discovery {
             )
             .addOnSuccessListener {
                 listener.invoke(
-                    DiscoveryStatus.DiscoveryStarted
+                    DiscoveryStatus.StartFinishedWithSuccess
                 )
             }
             .addOnFailureListener {
                 listener.invoke(
-                    DiscoveryStatus.DiscoveryFailed(it)
+                    DiscoveryStatus.StartFinishedWithError(it)
                 )
             }
     }
@@ -146,7 +155,7 @@ internal class Discovery {
 
             override fun onDisconnected(endpointId: String) {
                 listener.invoke(
-                    DiscoveryStatus.Disconnected
+                    BaseStatus.Disconnected
                 )
             }
         }

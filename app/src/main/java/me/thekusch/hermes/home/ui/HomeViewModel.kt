@@ -48,16 +48,20 @@ class HomeViewModel @Inject constructor(
     ) { homeUiState, permissionUiState, errorState, hermesState ->
 
         when (hermesState) {
-            is BaseStatus.Initial -> {
-                // no-op
-            }
+            is BaseStatus.WavingStarting -> {
+                if (hermesState is AdvertiseStatus.StartFinishedWithError) {
+                    _errorState.value = hermesState.exception.localizedMessage.orEmpty()
 
-            is AdvertiseStatus.FinishedWithError -> {
-                _errorState.value = hermesState.exception.localizedMessage.orEmpty()
-            }
-
-            is DiscoveryStatus.DiscoveryFailed -> {
-                _errorState.value = hermesState.exception.localizedMessage.orEmpty()
+                }
+                if (hermesState is DiscoveryStatus.StartFinishedWithError) {
+                    _errorState.value = hermesState.exception.localizedMessage.orEmpty()
+                }
+                if (hermesState is DiscoveryStatus.StartFinishedWithSuccess) {
+                    _homeUiState.value = HomeUiState.CreateChat(CreateChatMethod.DISCOVER)
+                }
+                if (hermesState is AdvertiseStatus.StartFinishedWithSuccess) {
+                    _homeUiState.value = HomeUiState.CreateChat(CreateChatMethod.ADVERTISE)
+                }
             }
 
             is BaseStatus.Dismissed -> {
@@ -67,10 +71,7 @@ class HomeViewModel @Inject constructor(
             }
 
             else -> {
-                val createChatMethod =
-                    if (hermesState is AdvertiseStatus) CreateChatMethod.ADVERTISE
-                    else CreateChatMethod.DISCOVER
-                _homeUiState.value = HomeUiState.CreateChat(createChatMethod)
+                //no-op
             }
         }
 
@@ -116,15 +117,8 @@ class HomeViewModel @Inject constructor(
 
     }
 
-    fun dismissCreateChat(
-        method: CreateChatMethod
-    ) {
-        if (method == CreateChatMethod.DISCOVER) {
-            hermes.stopDiscovery()
-        }
-        if (method == CreateChatMethod.ADVERTISE) {
-            hermes.stopAdvertising()
-        }
+    fun dismissCreateChat() {
+        hermes.dismissConnection()
     }
 
     fun getChatHistory() {

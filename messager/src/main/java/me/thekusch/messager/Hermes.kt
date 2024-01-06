@@ -3,10 +3,8 @@ package me.thekusch.messager
 import android.content.Context
 import androidx.fragment.app.FragmentActivity
 import me.thekusch.messager.controller.Advertise
-import me.thekusch.messager.controller.AdvertiseStatus
 import me.thekusch.messager.controller.BaseStatus
 import me.thekusch.messager.controller.Discovery
-import me.thekusch.messager.controller.DiscoveryStatus
 import me.thekusch.messager.datasource.LocalDataSource
 import me.thekusch.messager.permission.BluetoothManager
 import me.thekusch.messager.permission.LocationManager
@@ -80,12 +78,32 @@ public class Hermes private constructor(
 
     }
 
-    public fun stopAdvertising() {
-        advertise.stopAdvertising(activity)
+    public fun dismissConnection(): Unit = when (role) {
+        Role.ADVERTISE -> {
+            advertise.dismiss(activity)
+        }
+
+        Role.DISCOVER -> {
+            discovery.dismiss(activity)
+        }
+
+        else -> {
+            // no-op
+        }
     }
 
-    public fun stopDiscovery() {
-        discovery.stopDiscovery(activity)
+    public fun disconnect(): Unit = when (role) {
+        Role.ADVERTISE -> {
+            advertise.disconnect(activity)
+        }
+
+        Role.DISCOVER -> {
+            discovery.disconnect(activity)
+        }
+
+        else -> {
+            // no-op
+        }
     }
 
     public fun startAdvertising() {

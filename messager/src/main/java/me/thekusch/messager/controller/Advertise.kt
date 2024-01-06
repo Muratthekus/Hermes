@@ -21,12 +21,21 @@ internal class Advertise {
     lateinit var listener: AdvertiseStatusListener
     private val localDataSource = LocalDataSource
 
-    internal fun stopAdvertising(
+    internal fun disconnect(context: Context) {
+        listener.invoke(BaseStatus.Disconnected)
+        stopAdvertising(context)
+    }
+
+    internal fun dismiss(context: Context) {
+        listener.invoke(BaseStatus.Dismissed)
+        stopAdvertising(context)
+    }
+
+    private fun stopAdvertising(
         context: Context,
     ) {
         val connectionsClient = Nearby.getConnectionsClient(context)
         connectionsClient.stopAdvertising()
-        listener.invoke(BaseStatus.Dismissed)
     }
 
     internal fun startAdvertising(
@@ -50,10 +59,10 @@ internal class Advertise {
                 advertisingOptions
             )
             .addOnSuccessListener {
-                listener.invoke(AdvertiseStatus.FinishedSuccessfully)
+                listener.invoke(AdvertiseStatus.StartFinishedWithSuccess)
             }
             .addOnFailureListener {
-                listener.invoke(AdvertiseStatus.FinishedWithError(it))
+                listener.invoke(AdvertiseStatus.StartFinishedWithError(it))
             }
     }
 
@@ -61,7 +70,6 @@ internal class Advertise {
         context: Context,
         endpointId: String
     ) {
-
         Nearby.getConnectionsClient(context)
             .acceptConnection(endpointId, getPayloadCallBack())
     }
@@ -119,7 +127,7 @@ internal class Advertise {
 
             override fun onDisconnected(endpointId: String) {
                 listener.invoke(
-                    AdvertiseStatus.Disconnected
+                    BaseStatus.Disconnected
                 )
             }
         }
