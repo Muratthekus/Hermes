@@ -46,7 +46,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import me.thekusch.hermes.R
-import me.thekusch.hermes.core.widget.getFieldIconTint
+import me.thekusch.hermes.core.common.widget.getFieldIconTint
 import me.thekusch.hermes.home.ui.component.CreateChat
 import me.thekusch.hermes.home.ui.component.CreateChatDialog
 import me.thekusch.hermes.home.ui.component.EmptyChat

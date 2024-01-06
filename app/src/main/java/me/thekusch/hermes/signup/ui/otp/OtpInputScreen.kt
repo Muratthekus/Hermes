@@ -41,9 +41,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import me.thekusch.hermes.R
 import me.thekusch.hermes.signup.ui.info.UserInfo
 import me.thekusch.hermes.ui.theme.HermesTheme
-import me.thekusch.hermes.core.widget.OtpTextField
-import me.thekusch.hermes.core.widget.Timer
-import me.thekusch.hermes.core.widget.getFieldIconTint
+import me.thekusch.hermes.core.common.widget.OtpTextField
+import me.thekusch.hermes.core.common.widget.Timer
+import me.thekusch.hermes.core.common.widget.getFieldIconTint
 import me.thekusch.hermes.home.ui.HomeScreen
 import me.thekusch.hermes.signup.ui.info.SignUpUiState
 import me.thekusch.hermes.ui.theme.Error

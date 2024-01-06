@@ -1,4 +1,4 @@
-package me.thekusch.hermes.core.util
+package me.thekusch.hermes.core.common.util
 
 import androidx.compose.ui.graphics.Color
 import java.util.Random

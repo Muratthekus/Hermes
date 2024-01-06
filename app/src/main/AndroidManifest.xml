@@ -31,7 +31,6 @@
 
         <activity
             android:name=".StarterActivity"
-            android:theme="@style/Theme.Hermes"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

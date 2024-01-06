@@ -1,4 +1,4 @@
-package me.thekusch.hermes.core.widget
+package me.thekusch.hermes.core.common.widget
 
 import android.os.CountDownTimer
 import androidx.compose.foundation.clickable

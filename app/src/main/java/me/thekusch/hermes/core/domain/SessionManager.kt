@@ -17,7 +17,7 @@ import me.thekusch.hermes.core.datasource.local.model.Result
 import me.thekusch.hermes.core.datasource.supabase.Supabase
 import me.thekusch.hermes.core.domain.mapper.SessionMapper
 import me.thekusch.hermes.core.domain.model.User
-import me.thekusch.hermes.core.util.OtpRequestLimitException
+import me.thekusch.hermes.core.common.util.OtpRequestLimitException
 import me.thekusch.hermes.core.worker.HermesWorkerManager
 import javax.inject.Inject
 import javax.inject.Singleton

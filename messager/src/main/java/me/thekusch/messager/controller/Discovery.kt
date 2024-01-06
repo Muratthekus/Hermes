@@ -23,6 +23,12 @@ internal class Discovery {
     lateinit var listener: DiscoveryStatusListener
     private val localDataSource = LocalDataSource
 
+    internal fun stopDiscovery(context: Context) {
+        Nearby.getConnectionsClient(context)
+            .stopDiscovery()
+        listener.invoke(BaseStatus.Dismissed)
+    }
+
 
     internal fun acceptConnectionRequest(
         context: Context,

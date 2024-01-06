@@ -40,8 +40,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import me.thekusch.hermes.R
-import me.thekusch.hermes.core.widget.getFieldIconTint
-import me.thekusch.hermes.core.widget.provideTextFieldColors
+import me.thekusch.hermes.core.common.widget.getFieldIconTint
+import me.thekusch.hermes.core.common.widget.provideTextFieldColors
 import me.thekusch.hermes.home.ui.HomeActivity
 import me.thekusch.hermes.home.ui.HomeScreen
 import me.thekusch.hermes.signup.ui.info.SignUpUiState

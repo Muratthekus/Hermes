@@ -1,4 +1,4 @@
-package me.thekusch.hermes.core.widget
+package me.thekusch.hermes.core.common.widget
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable

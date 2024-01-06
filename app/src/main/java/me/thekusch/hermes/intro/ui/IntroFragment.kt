@@ -41,7 +41,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 import me.thekusch.hermes.R
 import me.thekusch.hermes.ui.theme.HermesTheme
-import me.thekusch.hermes.core.widget.HorizontalPager
+import me.thekusch.hermes.core.common.widget.HorizontalPager
 import me.thekusch.hermes.login.ui.LoginScreen
 import me.thekusch.hermes.signup.ui.info.SignUpInfoScreen
 

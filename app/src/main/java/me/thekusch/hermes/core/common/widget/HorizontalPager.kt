@@ -1,4 +1,4 @@
-package me.thekusch.hermes.core.widget
+package me.thekusch.hermes.core.common.widget
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

@@ -21,6 +21,14 @@ internal class Advertise {
     lateinit var listener: AdvertiseStatusListener
     private val localDataSource = LocalDataSource
 
+    internal fun stopAdvertising(
+        context: Context,
+    ) {
+        val connectionsClient = Nearby.getConnectionsClient(context)
+        connectionsClient.stopAdvertising()
+        listener.invoke(BaseStatus.Dismissed)
+    }
+
     internal fun startAdvertising(
         context: Context,
     ) {

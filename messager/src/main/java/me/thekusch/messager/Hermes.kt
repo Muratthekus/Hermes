@@ -80,6 +80,14 @@ public class Hermes private constructor(
 
     }
 
+    public fun stopAdvertising() {
+        advertise.stopAdvertising(activity)
+    }
+
+    public fun stopDiscovery() {
+        discovery.stopDiscovery(activity)
+    }
+
     public fun startAdvertising() {
         requireNotNull(advertiseStatusListener) {
             "a value should have been set to listener"

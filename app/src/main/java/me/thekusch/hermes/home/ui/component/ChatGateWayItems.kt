@@ -20,8 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import me.thekusch.hermes.core.util.getRandomColor
-import me.thekusch.hermes.core.util.shortenString
+import me.thekusch.hermes.core.common.util.getRandomColor
+import me.thekusch.hermes.core.common.util.shortenString
 import me.thekusch.hermes.home.domain.model.Chat
 
 

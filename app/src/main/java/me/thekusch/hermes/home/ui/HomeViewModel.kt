@@ -9,10 +9,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import me.thekusch.hermes.core.common.flow.withHistory
 import me.thekusch.hermes.home.domain.HomeUseCase
 import me.thekusch.hermes.home.ui.component.CreateChatMethod
 import me.thekusch.messager.Hermes
@@ -39,16 +38,7 @@ class HomeViewModel @Inject constructor(
         MutableStateFlow("")
 
     // If Hermes fails in any reason we should rollback to previous HomeUiState
-    private val _homeUiStateHistory: StateFlow<HomeUiStateHistory?> =
-        _homeUiState.runningFold(
-            initial = HomeUiStateHistory(
-                null,
-                HomeUiState.Init
-            )
-        ) { previous, current ->
-            HomeUiStateHistory(previous.current, current)
-        }.distinctUntilChanged()
-            .stateIn(viewModelScope, SharingStarted.Lazily, null)
+    private val _homeUiStateHistory = _homeUiState.withHistory(viewModelScope)
 
     val homeState: StateFlow<HomeState> = combine(
         _homeUiState,
@@ -57,30 +47,35 @@ class HomeViewModel @Inject constructor(
         _hermesState,
     ) { homeUiState, permissionUiState, errorState, hermesState ->
 
-        val homeState = when (hermesState) {
+        when (hermesState) {
             is BaseStatus.Initial -> {
-                homeUiState
+                // no-op
             }
+
             is AdvertiseStatus.FinishedWithError -> {
                 _errorState.value = hermesState.exception.localizedMessage.orEmpty()
-                homeUiState
             }
 
             is DiscoveryStatus.DiscoveryFailed -> {
                 _errorState.value = hermesState.exception.localizedMessage.orEmpty()
-                homeUiState
+            }
+
+            is BaseStatus.Dismissed -> {
+                _homeUiStateHistory.value?.previous?.let {
+                    _homeUiState.value = it
+                }
             }
 
             else -> {
                 val createChatMethod =
                     if (hermesState is AdvertiseStatus) CreateChatMethod.ADVERTISE
                     else CreateChatMethod.DISCOVER
-                HomeUiState.CreateChat(createChatMethod)
+                _homeUiState.value = HomeUiState.CreateChat(createChatMethod)
             }
         }
 
         HomeState(
-            uiState = homeState,
+            uiState = homeUiState,
             permissionUiState = permissionUiState,
             errorState = errorState,
             hermesState = hermesState
@@ -96,29 +91,39 @@ class HomeViewModel @Inject constructor(
             requireNotNull(user) { "User record can not be found thus Hermes couldn't initialize" }
 
             this@HomeViewModel.hermes = hermes
-            this@HomeViewModel.hermes.build()
-            this@HomeViewModel.hermes.setUsername(user.name)
-            setHermesListeners()
+            this@HomeViewModel.hermes.apply {
+                build()
+                setUsername(user.name)
+                advertiseStatusListener = {
+                    _hermesState.value = it
+                }
+                discoveryStatusListener = {
+                    _hermesState.value = it
+                }
+            }
         }
     }
 
     fun createChat(
         method: CreateChatMethod
     ) {
-        viewModelScope.launch(homeExceptionHandler) {
-            if (method == CreateChatMethod.DISCOVER) {
-                hermes.startDiscovery()
-            }
-            if (method == CreateChatMethod.ADVERTISE) {
-                hermes.startAdvertising()
-            }
+        if (method == CreateChatMethod.DISCOVER) {
+            hermes.startDiscovery()
         }
+        if (method == CreateChatMethod.ADVERTISE) {
+            hermes.startAdvertising()
+        }
+
     }
 
-    fun dismissCreateChat() {
-        viewModelScope.launch {
-            _homeUiState.value = _homeUiStateHistory.value?.previous ?:
-            _homeUiState.value
+    fun dismissCreateChat(
+        method: CreateChatMethod
+    ) {
+        if (method == CreateChatMethod.DISCOVER) {
+            hermes.stopDiscovery()
+        }
+        if (method == CreateChatMethod.ADVERTISE) {
+            hermes.stopAdvertising()
         }
     }
 
@@ -146,20 +151,4 @@ class HomeViewModel @Inject constructor(
             _permissionState.value = false
         }
     }
-
-    private fun setHermesListeners() {
-        viewModelScope.launch {
-            hermes.advertiseStatusListener = {
-                _hermesState.value = it
-            }
-            hermes.discoveryStatusListener = {
-                _hermesState.value = it
-            }
-        }
-    }
-
-    private data class HomeUiStateHistory(
-        val previous: HomeUiState?,
-        val current: HomeUiState
-    )
 }
