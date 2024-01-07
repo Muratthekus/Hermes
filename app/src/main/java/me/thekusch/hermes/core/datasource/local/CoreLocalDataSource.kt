@@ -31,7 +31,11 @@ class CoreLocalDataSource @Inject constructor(
         return chatDao.getChats()
     }
 
-    suspend fun getChatMessagesWithCleanup(chatId: Long): List<MessageEntity>? {
+    suspend fun createNewChat(chatEntity: ChatEntity) {
+        chatDao.createNewChat(chatEntity)
+    }
+
+    suspend fun getChatMessagesWithCleanup(chatId: String): List<MessageEntity>? {
         val cutoffTime = System.currentTimeMillis() - cutOffTime // 7 days ago
 
         return withContext(Dispatchers.IO) {
@@ -44,7 +48,7 @@ class CoreLocalDataSource @Inject constructor(
         }
     }
 
-    suspend fun getChatParticipants(chatId: Long): List<UserInfoEntity>? {
+    suspend fun getChatParticipants(chatId: String): List<UserInfoEntity>? {
         return withContext(Dispatchers.IO) {
             dataBase.withTransaction {
                 chatDao.getChatParticipants(chatId)?.participants

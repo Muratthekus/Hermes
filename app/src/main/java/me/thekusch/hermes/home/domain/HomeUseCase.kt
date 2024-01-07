@@ -26,6 +26,15 @@ class HomeUseCase @Inject constructor(
         }
     }
 
+    suspend fun createNewChat(
+        endpointId: String,
+        endpointName: String,
+    ) {
+        chatRepository.createNewChat(
+            homeMapper.mapOnCreateNewChat(endpointId, endpointName)
+        )
+    }
+
     suspend fun getCurrentUser(): User? {
         return withContext(Dispatchers.IO) {
             sessionManager.getCurrentUser()

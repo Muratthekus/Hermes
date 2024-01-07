@@ -11,4 +11,8 @@ class ChatRepository @Inject constructor(
     suspend fun getChatHistory(): List<ChatEntity>? {
         return coreLocalDataSource.getChatHistory()
     }
+
+    suspend fun createNewChat(chatEntity: ChatEntity) {
+        coreLocalDataSource.createNewChat(chatEntity)
+    }
 }

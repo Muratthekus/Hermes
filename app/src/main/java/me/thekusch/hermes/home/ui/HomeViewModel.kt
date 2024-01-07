@@ -1,5 +1,6 @@
 package me.thekusch.hermes.home.ui
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -8,6 +9,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -24,6 +26,11 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val homeUseCase: HomeUseCase
 ) : ViewModel() {
+
+    private lateinit var hermes: Hermes
+
+    private val _latestChatConnectionInfo: MutableStateFlow<AdvertiseStatus.ConnectionInitiated?> =
+        MutableStateFlow(null)
 
     private val _homeUiState: MutableStateFlow<HomeUiState> =
         MutableStateFlow(HomeUiState.Init)
@@ -47,33 +54,7 @@ class HomeViewModel @Inject constructor(
         _hermesState,
     ) { homeUiState, permissionUiState, errorState, hermesState ->
 
-        when (hermesState) {
-            is BaseStatus.WavingStarting -> {
-                if (hermesState is AdvertiseStatus.StartFinishedWithError) {
-                    _errorState.value = hermesState.exception.localizedMessage.orEmpty()
-
-                }
-                if (hermesState is DiscoveryStatus.StartFinishedWithError) {
-                    _errorState.value = hermesState.exception.localizedMessage.orEmpty()
-                }
-                if (hermesState is DiscoveryStatus.StartFinishedWithSuccess) {
-                    _homeUiState.value = HomeUiState.CreateChat(CreateChatMethod.DISCOVER)
-                }
-                if (hermesState is AdvertiseStatus.StartFinishedWithSuccess) {
-                    _homeUiState.value = HomeUiState.CreateChat(CreateChatMethod.ADVERTISE)
-                }
-            }
-
-            is BaseStatus.Dismissed -> {
-                _homeUiStateHistory.value?.previous?.let {
-                    _homeUiState.value = it
-                }
-            }
-
-            else -> {
-                //no-op
-            }
-        }
+        hermesStateMapper(hermesState)
 
         HomeState(
             uiState = homeUiState,
@@ -83,9 +64,8 @@ class HomeViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.Lazily, HomeState())
 
-    private lateinit var hermes: Hermes
-
     //TODO(murat) save if user rejected or accepted requests, observe permission changes
+    // handle context storage in Hermes
     fun initHermes(hermes: Hermes) {
         viewModelScope.launch(homeExceptionHandler) {
             val user = async { homeUseCase.getCurrentUser() }.await()
@@ -119,6 +99,77 @@ class HomeViewModel @Inject constructor(
 
     fun dismissCreateChat() {
         hermes.dismissConnection()
+    }
+
+    fun connectionAnswer(
+        answer: Boolean,
+        data: AdvertiseStatus.ConnectionInitiated,
+        context: Context
+    ) {
+        if (answer) {
+            hermes.acceptConnection(data.endpointId, context)
+            _latestChatConnectionInfo.value = data
+            return
+        }
+        hermes.rejectConnection(data.endpointId, context)
+    }
+
+    private suspend fun hermesStateMapper(hermesState: BaseStatus) {
+        when (hermesState) {
+            is BaseStatus.WavingStarting -> {
+                if (hermesState is AdvertiseStatus.StartFinishedWithError) {
+                    _errorState.value = hermesState.exception.localizedMessage.orEmpty()
+
+                }
+                if (hermesState is DiscoveryStatus.StartFinishedWithError) {
+                    _errorState.value = hermesState.exception.localizedMessage.orEmpty()
+                }
+                if (hermesState is DiscoveryStatus.StartFinishedWithSuccess) {
+                    _homeUiState.value = HomeUiState.CreateChat(CreateChatMethod.DISCOVER)
+                }
+                if (hermesState is AdvertiseStatus.StartFinishedWithSuccess) {
+                    _homeUiState.value = HomeUiState.CreateChat(CreateChatMethod.ADVERTISE)
+                }
+            }
+
+            is BaseStatus.WavingMatchDetecting -> {
+                if (hermesState is AdvertiseStatus.ConnectionResultStatus) {
+
+                    if (hermesState.result == AdvertiseStatus.ConnectionResultStatus.CONNECTED) {
+                        homeUseCase.createNewChat(
+                            _latestChatConnectionInfo.value!!.endpointId,
+                            _latestChatConnectionInfo.value!!.endpointName
+                        )
+                    }
+                    if (hermesState.result == AdvertiseStatus.ConnectionResultStatus.ERROR) {
+                        _errorState.value = "Unexpted error happen please try later"
+                    }
+                }
+
+                if (hermesState is DiscoveryStatus.ConnectionResultStatus) {
+
+                    if (hermesState.result == AdvertiseStatus.ConnectionResultStatus.CONNECTED) {
+                        homeUseCase.createNewChat(
+                            _latestChatConnectionInfo.value!!.endpointId,
+                            _latestChatConnectionInfo.value!!.endpointName
+                        )
+                    }
+                    if (hermesState.result == AdvertiseStatus.ConnectionResultStatus.ERROR) {
+                        _errorState.value = "Unexpted error happen please try later"
+                    }
+                }
+            }
+
+            is BaseStatus.Dismissed -> {
+                _homeUiStateHistory.value?.previous?.let {
+                    _homeUiState.value = it
+                }
+            }
+
+            else -> {
+                //no-op
+            }
+        }
     }
 
     fun getChatHistory() {

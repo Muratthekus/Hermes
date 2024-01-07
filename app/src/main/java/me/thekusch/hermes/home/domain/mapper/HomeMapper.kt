@@ -19,6 +19,18 @@ class HomeMapper @Inject constructor() {
         )
     }
 
+    fun mapOnCreateNewChat(
+        endpointId: String,
+        endpointName: String
+    ): ChatEntity {
+        return ChatEntity(
+            id = endpointId,
+            createdAt = System.currentTimeMillis(),
+            updatedAt = System.currentTimeMillis(),
+            slug = endpointName
+        )
+    }
+
     private fun convertTimestampToString(timestamp: Long): String {
         val currentDate = Date()
         val inputDate = Date(timestamp)

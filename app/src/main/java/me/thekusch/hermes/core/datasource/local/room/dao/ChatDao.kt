@@ -14,14 +14,17 @@ import me.thekusch.hermes.core.datasource.local.room.tables.UserChatCrossRef
 interface ChatDao {
     @Transaction
     @Query("SELECT * FROM chat_entity WHERE id = :chatId")
-    suspend fun getChatMessages(chatId: Long): ChatMessages?
+    suspend fun getChatMessages(chatId: String): ChatMessages?
 
     @Transaction
     @Query("SELECT * FROM chat_entity WHERE id = :chatId")
-    suspend fun getChatParticipants(chatId: Long): ChatWithParticipants?
+    suspend fun getChatParticipants(chatId: String): ChatWithParticipants?
 
     @Query("SELECT * FROM chat_entity")
     suspend fun getChats(): List<ChatEntity>?
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun createNewChat(chatEntity: ChatEntity)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertUserToChatCrossRef(userChatCrossRef: UserChatCrossRef)

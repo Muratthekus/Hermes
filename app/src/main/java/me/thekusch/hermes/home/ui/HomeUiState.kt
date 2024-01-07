@@ -14,6 +14,8 @@ sealed class HomeUiState {
     data class Success(val chatHistory: List<Chat>): HomeUiState()
 
     data class CreateChat(val selectedCreateChatMethod: CreateChatMethod): HomeUiState()
+
+    object ChatConfigDataExchange: HomeUiState()
 }
 
 fun HomeUiState.isLoading(): Boolean = this == HomeUiState.Loading

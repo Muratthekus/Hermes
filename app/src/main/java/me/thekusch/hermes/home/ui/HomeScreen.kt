@@ -154,10 +154,16 @@ class HomeScreen : Fragment() {
                     val data = homeState.uiState as HomeUiState.CreateChat
                     CreateChat(
                         selectedMethod = data.selectedCreateChatMethod,
-                        hermesState = homeState.hermesState
-                    ) {
-                        viewModel.dismissCreateChat()
-                    }
+                        hermesState = homeState.hermesState,
+                        onDismiss = { viewModel.dismissCreateChat() },
+                        onConnectionAnswer = { accept, connectionData ->
+                            viewModel.connectionAnswer(
+                                accept,
+                                connectionData,
+                                requireContext()
+                            )
+                        }
+                    )
                 }
 
                 if (homeState.uiState.isSuccess()) {

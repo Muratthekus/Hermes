@@ -1,20 +1,32 @@
 package me.thekusch.hermes.home.ui.component
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -27,8 +39,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import me.thekusch.hermes.R
+import me.thekusch.hermes.ui.theme.Error
+import me.thekusch.hermes.ui.theme.Success
 import me.thekusch.messager.controller.AdvertiseStatus
 import me.thekusch.messager.controller.BaseStatus
 
@@ -38,29 +54,107 @@ enum class CreateChatMethod {
 }
 
 @Composable
+private fun ConnectionRequest(
+    onConnectionAnswer: (
+        accept: Boolean,
+        connectionData: AdvertiseStatus.ConnectionInitiated
+    ) -> Unit
+) {
+
+}
+
+@Composable
 private fun CreateChatWithAdvertise(
     modifier: Modifier = Modifier,
     advertiseStatus: AdvertiseStatus,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onConnectionAnswer: (accept: Boolean, data: AdvertiseStatus.ConnectionInitiated) -> Unit,
 ) {
-    Box(
+    Column(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        PulseLoading()
+        AnimatedVisibility(
+            visible = advertiseStatus is BaseStatus.WavingStarting,
+            enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) + expandIn(),
+            exit = fadeOut(),
+        ) {
+            PulseLoading()
+        }
+
+        AnimatedVisibility(
+            visible = advertiseStatus is BaseStatus.WavingMatchDetecting &&
+                    advertiseStatus is AdvertiseStatus.ConnectionInitiated,
+            enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) + expandIn(),
+            exit = fadeOut(),
+        ) {
+            val data = advertiseStatus as AdvertiseStatus.ConnectionInitiated
+            Column {
+                Text(
+                    text = "User: ${data.endpointName} wants to meet you",
+                    style = MaterialTheme.typography.h3,
+                    color = MaterialTheme.colors.onBackground,
+                    textAlign = TextAlign.Center
+                )
+                Row(
+                    modifier = Modifier.padding(top = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+
+                    Button(
+                        modifier = Modifier
+                            .padding(horizontal = 24.dp, vertical = 18.dp)
+                            .size(width = 48.dp, height = 36.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        onClick = { onConnectionAnswer(true, data) },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Success)
+                    ) {
+                        Text(
+                            text = "Accept",
+                            style = MaterialTheme.typography.subtitle1,
+                            color = MaterialTheme.colors.onPrimary
+                        )
+                    }
+
+                    Button(
+                        modifier = Modifier
+                            .padding(horizontal = 24.dp, vertical = 18.dp)
+                            .size(width = 48.dp, height = 36.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        onClick = { onConnectionAnswer(false, data) },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Error)
+                    ) {
+                        Text(
+                            text = "Reject",
+                            style = MaterialTheme.typography.subtitle1,
+                            color = MaterialTheme.colors.onPrimary
+                        )
+                    }
+                }
+            }
+        }
 
         Text(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 12.dp, start = 24.dp, end = 24.dp)
-                .align(Alignment.BottomCenter)
                 .padding(bottom = 46.dp)
                 .clickable { onDismiss() },
             text = "Let's wave to everyone around. Wait until someone wave back",
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.subtitle1,
             color = MaterialTheme.colors.onBackground
+        )
+
+        Image(
+            modifier = Modifier
+                .padding(top = 12.dp)
+                .clickable { onDismiss() },
+            painter = painterResource(id = R.drawable.ic_cancel),
+            contentDescription = "cancel advertise"
         )
     }
 }
@@ -77,12 +171,17 @@ fun CreateChat(
     modifier: Modifier = Modifier,
     selectedMethod: CreateChatMethod,
     hermesState: BaseStatus,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onConnectionAnswer: (
+        accept: Boolean,
+        connectionData: AdvertiseStatus.ConnectionInitiated
+    ) -> Unit
 ) {
     if (selectedMethod == CreateChatMethod.ADVERTISE) {
         CreateChatWithAdvertise(
             advertiseStatus = hermesState as AdvertiseStatus,
-            onDismiss = onDismiss
+            onDismiss = onDismiss,
+            onConnectionAnswer = onConnectionAnswer
         )
         return
     }

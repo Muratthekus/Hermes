@@ -4,7 +4,7 @@ import androidx.compose.runtime.Stable
 
 @Stable
 data class Chat(
-    val id: Long,
+    val id: String,
     val createdAt: String,
     val updatedAt: String,
     val hasPendingMessages: Boolean = false,

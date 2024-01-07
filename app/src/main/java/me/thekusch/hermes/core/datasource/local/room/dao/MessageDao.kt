@@ -6,6 +6,6 @@ import androidx.room.Query
 @Dao
 interface MessageDao {
     @Query("DELETE FROM message_entity WHERE chatId = :chatId AND createdAt <= :cutoffTime")
-    suspend fun deleteExpiredMessages(chatId: Long, cutoffTime: Long)
+    suspend fun deleteExpiredMessages(chatId: String, cutoffTime: Long)
 
 }

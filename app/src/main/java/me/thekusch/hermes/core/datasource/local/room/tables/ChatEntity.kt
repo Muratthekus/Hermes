@@ -8,7 +8,7 @@ import androidx.room.Relation
 
 @Entity("chat_entity")
 data class ChatEntity(
-    @PrimaryKey val id: Long,
+    @PrimaryKey val id: String,
     val createdAt: Long,
     val updatedAt: Long,
     val hasPendingMessages: Boolean = false,
