@@ -10,12 +10,6 @@ public sealed interface BaseStatus {
 
     public object Initial : BaseStatus
 
-    public object Talking : BaseStatus
-
-    public object Disconnected : BaseStatus
-
-    public object Dismissed : BaseStatus
-
     public object Loading : WavingStarting
 
     public object StartFinishedWithSuccess : WavingStarting
@@ -45,5 +39,11 @@ public sealed interface BaseStatus {
             public const val REJECTED: String = "REJECTED"
         }
     }
+
+    public object Talking : BaseStatus
+
+    public object Disconnected : BaseStatus
+
+    public object Dismissed : BaseStatus
 
 }

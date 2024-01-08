@@ -1,6 +1,7 @@
 package me.thekusch.hermes.home.ui
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,7 +43,8 @@ class HomeViewModel @Inject constructor(
         MutableStateFlow("")
 
     // If Hermes fails in any reason we should rollback to previous HomeUiState
-    private val _homeUiStateHistory = _homeUiState.withHistory(viewModelScope)
+    private val _homeUiStateHistory =
+        _homeUiState.withHistory(viewModelScope)
 
     val homeState: StateFlow<HomeState> = combine(
         _homeUiState,
@@ -52,7 +54,7 @@ class HomeViewModel @Inject constructor(
     ) { homeUiState, permissionUiState, errorState, hermesState ->
 
         hermesStateMapper(hermesState)
-
+        Log.d("HomeViewModel", "homeUiState: $homeUiState")
         HomeState(
             uiState = homeUiState,
             permissionUiState = permissionUiState,
@@ -96,6 +98,10 @@ class HomeViewModel @Inject constructor(
 
     fun dismissCreateChat() {
         hermes.dismissConnection()
+        val previous = _homeUiStateHistory.value?.previous
+        previous?.let {
+            _homeUiState.value = it
+        }
     }
 
     fun connectionAnswer(
@@ -140,9 +146,7 @@ class HomeViewModel @Inject constructor(
             }
 
             is BaseStatus.Dismissed -> {
-                _homeUiStateHistory.value?.previous?.let {
-                    _homeUiState.value = it
-                }
+                _hermesState.value = BaseStatus.Initial
             }
 
             else -> {

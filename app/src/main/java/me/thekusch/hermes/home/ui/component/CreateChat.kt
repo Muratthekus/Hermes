@@ -54,12 +54,63 @@ enum class CreateChatMethod {
 
 @Composable
 private fun ConnectionRequest(
+    status: BaseStatus,
     onConnectionAnswer: (
         accept: Boolean,
         connectionData: BaseStatus.ConnectionInitiated
     ) -> Unit
 ) {
+    AnimatedVisibility(
+        visible =  status is BaseStatus.ConnectionInitiated,
+        enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) + expandIn(),
+        exit = fadeOut(),
+    ) {
+        val data = status as BaseStatus.ConnectionInitiated
+        Column {
+            Text(
+                text = "User: ${data.endpointName} wants to meet you",
+                style = MaterialTheme.typography.h3,
+                color = MaterialTheme.colors.onBackground,
+                textAlign = TextAlign.Center
+            )
+            Row(
+                modifier = Modifier.padding(top = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
 
+                Button(
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp, vertical = 18.dp)
+                        .size(width = 48.dp, height = 36.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    onClick = { onConnectionAnswer(true, data) },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Success)
+                ) {
+                    Text(
+                        text = "Accept",
+                        style = MaterialTheme.typography.subtitle1,
+                        color = MaterialTheme.colors.onPrimary
+                    )
+                }
+
+                Button(
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp, vertical = 18.dp)
+                        .size(width = 48.dp, height = 36.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    onClick = { onConnectionAnswer(false, data) },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Error)
+                ) {
+                    Text(
+                        text = "Reject",
+                        style = MaterialTheme.typography.subtitle1,
+                        color = MaterialTheme.colors.onPrimary
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -83,57 +134,10 @@ private fun CreateChatWithAdvertise(
             PulseLoading()
         }
 
-        AnimatedVisibility(
-            visible =  advertiseStatus is BaseStatus.ConnectionInitiated,
-            enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) + expandIn(),
-            exit = fadeOut(),
-        ) {
-            val data = advertiseStatus as BaseStatus.ConnectionInitiated
-            Column {
-                Text(
-                    text = "User: ${data.endpointName} wants to meet you",
-                    style = MaterialTheme.typography.h3,
-                    color = MaterialTheme.colors.onBackground,
-                    textAlign = TextAlign.Center
-                )
-                Row(
-                    modifier = Modifier.padding(top = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-
-                    Button(
-                        modifier = Modifier
-                            .padding(horizontal = 24.dp, vertical = 18.dp)
-                            .size(width = 48.dp, height = 36.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        onClick = { onConnectionAnswer(true, data) },
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Success)
-                    ) {
-                        Text(
-                            text = "Accept",
-                            style = MaterialTheme.typography.subtitle1,
-                            color = MaterialTheme.colors.onPrimary
-                        )
-                    }
-
-                    Button(
-                        modifier = Modifier
-                            .padding(horizontal = 24.dp, vertical = 18.dp)
-                            .size(width = 48.dp, height = 36.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        onClick = { onConnectionAnswer(false, data) },
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Error)
-                    ) {
-                        Text(
-                            text = "Reject",
-                            style = MaterialTheme.typography.subtitle1,
-                            color = MaterialTheme.colors.onPrimary
-                        )
-                    }
-                }
-            }
-        }
+        ConnectionRequest(
+            status = advertiseStatus,
+            onConnectionAnswer = onConnectionAnswer
+        )
 
         Text(
             modifier = Modifier
