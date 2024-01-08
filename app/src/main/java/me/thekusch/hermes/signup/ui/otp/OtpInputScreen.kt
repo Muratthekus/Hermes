@@ -1,5 +1,6 @@
 package me.thekusch.hermes.signup.ui.otp
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -44,6 +45,7 @@ import me.thekusch.hermes.ui.theme.HermesTheme
 import me.thekusch.hermes.core.common.widget.OtpTextField
 import me.thekusch.hermes.core.common.widget.Timer
 import me.thekusch.hermes.core.common.widget.getFieldIconTint
+import me.thekusch.hermes.home.ui.HomeActivity
 import me.thekusch.hermes.home.ui.HomeScreen
 import me.thekusch.hermes.signup.ui.info.SignUpUiState
 import me.thekusch.hermes.ui.theme.Error
@@ -126,13 +128,13 @@ class OtpInputScreen : Fragment() {
                 }
 
                 if (uiState == OtpInputUiState.Success) {
-                    activity?.supportFragmentManager?.beginTransaction()
-                        ?.replace(
-                            R.id.container,
-                            HomeScreen.newInstance()
+                    requireActivity().startActivity(
+                        Intent(
+                            requireContext(),
+                            HomeActivity::class.java
                         )
-                        ?.addToBackStack(null)
-                        ?.commit()
+                    )
+                    requireActivity().finish()
                 }
 
                 Column(

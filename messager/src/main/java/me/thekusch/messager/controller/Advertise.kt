@@ -17,7 +17,7 @@ import me.thekusch.messager.datasource.LocalDataSource
 
 internal class Advertise {
 
-    private var strategy = Strategy.P2P_CLUSTER
+    private var strategy = Strategy.P2P_POINT_TO_POINT
     lateinit var listener: AdvertiseStatusListener
     private val localDataSource = LocalDataSource
 
@@ -135,11 +135,11 @@ internal class Advertise {
     private fun getPayloadCallBack(): PayloadCallback =
         object : PayloadCallback() {
             override fun onPayloadReceived(p0: String, p1: Payload) {
-                TODO("Not yet implemented")
+                //TODO("Not yet implemented")
             }
 
             override fun onPayloadTransferUpdate(p0: String, p1: PayloadTransferUpdate) {
-                TODO("Not yet implemented")
+                //TODO("Not yet implemented")
             }
         }
 }

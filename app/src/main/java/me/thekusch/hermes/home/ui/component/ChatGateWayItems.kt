@@ -65,6 +65,45 @@ fun BasicChatGateWayItem(
     }
 }
 
+@Composable
+fun DiscoveredChatGateWayItem(
+    endpointName: String,
+    onClick: () -> Unit
+) {
+    ChatGateWayItemSkeleton(
+        modifier = Modifier.clickable { onClick() },
+        chatImage = {
+            BasicChatDisplayImage(
+                modifier = Modifier.weight(1f),
+                chatSlug = endpointName
+            )
+        }) {
+
+        ChatGatewayInfoWithEndpointName(
+            modifier = Modifier.weight(5f),
+            endpointName = endpointName
+        )
+    }
+}
+
+@Composable
+fun ChatGatewayInfoWithEndpointName(
+    modifier: Modifier = Modifier,
+    endpointName: String
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = endpointName,
+            style = MaterialTheme.typography.body1,
+            color = MaterialTheme.colors.onBackground,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
 // TODO(murat) update `ChatGatewayInfoWithMessages` with latest chat message after DB update
 @Composable
 fun ChatGatewayInfoWithMessages(

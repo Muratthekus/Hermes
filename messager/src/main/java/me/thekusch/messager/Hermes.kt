@@ -47,11 +47,11 @@ public class Hermes private constructor(
         context: Context
     ): Unit = when (role) {
         Role.ADVERTISE -> {
-            advertise.acceptConnectionRequest(context, endpointId)
+            advertise.acceptConnectionRequest(activity, endpointId)
         }
 
         Role.DISCOVER -> {
-            discovery.acceptConnectionRequest(context, endpointId)
+            discovery.acceptConnectionRequest(activity, endpointId)
         }
 
         else -> {
@@ -65,17 +65,26 @@ public class Hermes private constructor(
         context: Context
     ): Unit = when (role) {
         Role.ADVERTISE -> {
-            advertise.rejectConnectionRequest(context, endpointId)
+            advertise.rejectConnectionRequest(activity, endpointId)
         }
 
         Role.DISCOVER -> {
-            discovery.rejectConnectionRequest(context, endpointId)
+            discovery.rejectConnectionRequest(activity, endpointId)
         }
 
         else -> {
             // no-op
         }
 
+    }
+
+    public fun makeConnectionRequest(
+        context: Context,
+        endpointId: String
+    ) {
+        if (role == Role.ADVERTISE)
+            return
+        discovery.makeConnectionRequest(context, endpointId)
     }
 
     public fun dismissConnection(): Unit = when (role) {

@@ -38,6 +38,22 @@ internal class Discovery {
             .stopDiscovery()
     }
 
+    public fun makeConnectionRequest(
+        context: Context,
+        endpointId: String
+    ) {
+        Nearby.getConnectionsClient(context)
+            .requestConnection(
+                localDataSource.username ?: "",
+                endpointId,
+                getConnectionLifecycleCallback(context)
+            )
+            .addOnSuccessListener {
+                stopDiscovery(context)
+            }
+            .addOnFailureListener { e: java.lang.Exception? -> }
+    }
+
 
     internal fun acceptConnectionRequest(
         context: Context,
@@ -91,16 +107,6 @@ internal class Discovery {
                         endpointId, info.endpointName
                     )
                 )
-                Nearby.getConnectionsClient(context)
-                    .requestConnection(
-                        localDataSource.username ?: "",
-                        endpointId,
-                        getConnectionLifecycleCallback(context)
-                    )
-                    .addOnSuccessListener {
-
-                    }
-                    .addOnFailureListener { e: java.lang.Exception? -> }
             }
 
             override fun onEndpointLost(endpointId: String) {
@@ -163,11 +169,11 @@ internal class Discovery {
     private fun getPayloadCallBack(): PayloadCallback =
         object : PayloadCallback() {
             override fun onPayloadReceived(p0: String, p1: Payload) {
-                TODO("Not yet implemented")
+                //TODO("Not yet implemented")
             }
 
             override fun onPayloadTransferUpdate(p0: String, p1: PayloadTransferUpdate) {
-                TODO("Not yet implemented")
+                //TODO("Not yet implemented")
             }
 
         }

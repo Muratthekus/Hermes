@@ -22,6 +22,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
@@ -61,7 +64,7 @@ private fun ConnectionRequest(
     ) -> Unit
 ) {
     AnimatedVisibility(
-        visible =  status is BaseStatus.ConnectionInitiated,
+        visible = status is BaseStatus.ConnectionInitiated,
         enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) + expandIn(),
         exit = fadeOut(),
     ) {
@@ -69,7 +72,7 @@ private fun ConnectionRequest(
         Column {
             Text(
                 text = "User: ${data.endpointName} wants to meet you",
-                style = MaterialTheme.typography.h3,
+                style = MaterialTheme.typography.body1,
                 color = MaterialTheme.colors.onBackground,
                 textAlign = TextAlign.Center
             )
@@ -81,8 +84,7 @@ private fun ConnectionRequest(
 
                 Button(
                     modifier = Modifier
-                        .padding(horizontal = 24.dp, vertical = 18.dp)
-                        .size(width = 48.dp, height = 36.dp),
+                        .padding(horizontal = 24.dp, vertical = 18.dp),
                     shape = RoundedCornerShape(8.dp),
                     onClick = { onConnectionAnswer(true, data) },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Success)
@@ -96,8 +98,7 @@ private fun ConnectionRequest(
 
                 Button(
                     modifier = Modifier
-                        .padding(horizontal = 24.dp, vertical = 18.dp)
-                        .size(width = 48.dp, height = 36.dp),
+                        .padding(horizontal = 24.dp, vertical = 18.dp),
                     shape = RoundedCornerShape(8.dp),
                     onClick = { onConnectionAnswer(false, data) },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Error)
@@ -153,6 +154,7 @@ private fun CreateChatWithAdvertise(
 
         Image(
             modifier = Modifier
+                .size(64.dp)
                 .padding(top = 12.dp)
                 .clickable { onDismiss() },
             painter = painterResource(id = R.drawable.ic_cancel),
@@ -164,8 +166,78 @@ private fun CreateChatWithAdvertise(
 @Composable
 private fun CreateSearchWithDiscover(
     modifier: Modifier = Modifier,
+    discoveryStatus: BaseStatus,
+    onDismiss: () -> Unit,
+    onClick: (BaseStatus.EndpointFound) -> Unit,
+    onConnectionAnswer: (accept: Boolean, data: BaseStatus.ConnectionInitiated) -> Unit
 ) {
+    val (endpointList, setEndPointList) = remember { mutableStateOf(listOf<BaseStatus.EndpointFound>()) }
+    val lazyListState = rememberLazyListState()
 
+    if (discoveryStatus is BaseStatus.EndpointLost) {
+        setEndPointList(endpointList.filter { it.endpointId != discoveryStatus.endpointId })
+    }
+
+    if (discoveryStatus is BaseStatus.EndpointFound) {
+        if (endpointList.any { it.endpointId == discoveryStatus.endpointId }.not())
+            setEndPointList(endpointList + discoveryStatus)
+    }
+
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        AnimatedVisibility(
+            visible = discoveryStatus is BaseStatus.WavingStarting,
+            enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) + expandIn(),
+            exit = fadeOut(),
+        ) {
+            PulseLoading()
+
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp, start = 24.dp, end = 24.dp)
+                    .padding(bottom = 46.dp)
+                    .clickable { onDismiss() },
+                text = "Let's look very is everyone",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.subtitle1,
+                color = MaterialTheme.colors.onBackground
+            )
+        }
+
+        AnimatedVisibility(
+            visible = endpointList.isNotEmpty() && (discoveryStatus is BaseStatus.ConnectionInitiated).not(),
+            enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) + expandIn(),
+            exit = fadeOut()
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                state = lazyListState,
+            ) {
+                items(endpointList, key = { it.endpointId }) { endpoint ->
+                    DiscoveredChatGateWayItem(
+                        endpointName = endpoint.endpointName
+                    ) { onClick(endpoint) }
+                }
+            }
+        }
+
+        ConnectionRequest(status = discoveryStatus, onConnectionAnswer = onConnectionAnswer)
+
+        if ((discoveryStatus is BaseStatus.Disconnected).not())
+            Image(
+                modifier = Modifier
+                    .size(64.dp)
+                    .padding(top = 12.dp)
+                    .clickable { onDismiss() },
+                painter = painterResource(id = R.drawable.ic_cancel),
+                contentDescription = "cancel advertise"
+            )
+    }
 }
 
 @Composable
@@ -177,7 +249,8 @@ fun CreateChat(
     onConnectionAnswer: (
         accept: Boolean,
         connectionData: BaseStatus.ConnectionInitiated
-    ) -> Unit
+    ) -> Unit,
+    onMakeRequest: ((BaseStatus.EndpointFound) -> Unit)? = null
 ) {
     if (selectedMethod == CreateChatMethod.ADVERTISE) {
         CreateChatWithAdvertise(
@@ -187,7 +260,13 @@ fun CreateChat(
         )
         return
     }
-    CreateSearchWithDiscover()
+    requireNotNull(onMakeRequest) { "onMakeRequest can not be null if Discovery selected" }
+    CreateSearchWithDiscover(
+        discoveryStatus = hermesState,
+        onDismiss = onDismiss,
+        onClick = onMakeRequest,
+        onConnectionAnswer = onConnectionAnswer
+    )
 }
 
 @Composable

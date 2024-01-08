@@ -27,6 +27,8 @@ class HomeViewModel @Inject constructor(
 
     private lateinit var hermes: Hermes
 
+    private var selectedMethod: CreateChatMethod? = null
+
     private val _latestChatConnectionInfo: MutableStateFlow<BaseStatus.ConnectionInitiated?> =
         MutableStateFlow(null)
 
@@ -54,7 +56,6 @@ class HomeViewModel @Inject constructor(
     ) { homeUiState, permissionUiState, errorState, hermesState ->
 
         hermesStateMapper(hermesState)
-        Log.d("HomeViewModel", "homeUiState: $homeUiState")
         HomeState(
             uiState = homeUiState,
             permissionUiState = permissionUiState,
@@ -64,7 +65,7 @@ class HomeViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Lazily, HomeState())
 
     //TODO(murat) save if user rejected or accepted requests, observe permission changes
-    // handle context storage in Hermes
+    // handle context storage in Hermes, handle message encryption
     fun initHermes(hermes: Hermes) {
         viewModelScope.launch(homeExceptionHandler) {
             val user = async { homeUseCase.getCurrentUser() }.await()
@@ -87,6 +88,7 @@ class HomeViewModel @Inject constructor(
     fun createChat(
         method: CreateChatMethod
     ) {
+        selectedMethod = method
         if (method == CreateChatMethod.DISCOVER) {
             hermes.startDiscovery()
         }
@@ -104,6 +106,13 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun makeConnectionRequest(
+        endpointFound: BaseStatus.EndpointFound,
+        context: Context
+    ) {
+        hermes.makeConnectionRequest(context, endpointFound.endpointId)
+    }
+
     fun connectionAnswer(
         answer: Boolean,
         data: BaseStatus.ConnectionInitiated,
@@ -118,6 +127,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun hermesStateMapper(hermesState: BaseStatus) {
+        Log.d("hermesState", hermesState.toString())
         when (hermesState) {
             is BaseStatus.WavingStarting -> {
                 if (hermesState is BaseStatus.StartFinishedWithError) {
@@ -126,7 +136,7 @@ class HomeViewModel @Inject constructor(
                 }
 
                 if (hermesState is BaseStatus.StartFinishedWithSuccess) {
-                    _homeUiState.value = HomeUiState.CreateChat(CreateChatMethod.ADVERTISE)
+                    _homeUiState.value = HomeUiState.CreateChat(selectedMethod!!)
                 }
             }
 
@@ -140,7 +150,7 @@ class HomeViewModel @Inject constructor(
                         )
                     }
                     if (hermesState.result == BaseStatus.ConnectionResultStatus.ERROR) {
-                        _errorState.value = "Unexpted error happen please try later"
+                        _errorState.value = "Unexpected error happen please try later"
                     }
                 }
             }

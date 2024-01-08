@@ -54,6 +54,7 @@ import me.thekusch.hermes.home.ui.component.UserChatHistoryList
 import me.thekusch.hermes.ui.theme.HermesTheme
 import me.thekusch.hermes.ui.theme.LightGray
 import me.thekusch.messager.Hermes
+import me.thekusch.messager.controller.BaseStatus
 
 @AndroidEntryPoint
 class HomeScreen : Fragment() {
@@ -98,6 +99,20 @@ class HomeScreen : Fragment() {
         LaunchedEffect(key1 = Unit, block = {
             viewModel.getChatHistory()
         })
+
+        LaunchedEffect(key1 = homeState.hermesState is BaseStatus.ConnectionResultStatus) {
+            if ((homeState.hermesState is BaseStatus.ConnectionResultStatus).not())
+                return@LaunchedEffect
+
+            if ((homeState.hermesState as BaseStatus.ConnectionResultStatus).result == BaseStatus.ConnectionResultStatus.CONNECTED) {
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Connected",
+                        duration = SnackbarDuration.Indefinite
+                    )
+                }
+            }
+        }
 
         Scaffold(
             modifier = Modifier.background(MaterialTheme.colors.background),
@@ -162,7 +177,8 @@ class HomeScreen : Fragment() {
                                 connectionData,
                                 requireContext()
                             )
-                        }
+                        },
+                        onMakeRequest = { viewModel.makeConnectionRequest(it, requireActivity()) }
                     )
                 }
 

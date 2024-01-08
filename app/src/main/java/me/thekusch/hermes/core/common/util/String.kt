@@ -6,7 +6,7 @@ fun String.shortenString(): String {
     return if (parts.size == 2) {
         val firstName = parts[0]
         val lastName = parts[1]
-        "${firstName.first()}${lastName.first()}"
+        "${firstName.getOrNull(1)}${lastName.first()}"
     } else {
         this
     }
