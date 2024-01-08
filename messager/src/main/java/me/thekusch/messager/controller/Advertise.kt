@@ -45,7 +45,7 @@ internal class Advertise {
 
         connectionsClient.stopDiscovery()
 
-        listener.invoke(AdvertiseStatus.Loading)
+        listener.invoke(BaseStatus.Loading)
 
         val advertisingOptions = AdvertisingOptions
             .Builder()
@@ -59,10 +59,10 @@ internal class Advertise {
                 advertisingOptions
             )
             .addOnSuccessListener {
-                listener.invoke(AdvertiseStatus.StartFinishedWithSuccess)
+                listener.invoke(BaseStatus.StartFinishedWithSuccess)
             }
             .addOnFailureListener {
-                listener.invoke(AdvertiseStatus.StartFinishedWithError(it))
+                listener.invoke(BaseStatus.StartFinishedWithError(it))
             }
     }
 
@@ -87,7 +87,7 @@ internal class Advertise {
             override fun onConnectionInitiated(endpointId: String, connectionInfo: ConnectionInfo) {
                 // Automatically accept the connection on both sides.
                 listener.invoke(
-                    AdvertiseStatus.ConnectionInitiated(
+                    BaseStatus.ConnectionInitiated(
                         endpointId, connectionInfo.endpointName
                     )
                 )
@@ -97,24 +97,24 @@ internal class Advertise {
                 when (result.status.statusCode) {
                     ConnectionsStatusCodes.STATUS_OK -> {
                         listener.invoke(
-                            AdvertiseStatus.ConnectionResultStatus(
-                                AdvertiseStatus.ConnectionResultStatus.CONNECTED
+                            BaseStatus.ConnectionResultStatus(
+                                BaseStatus.ConnectionResultStatus.CONNECTED
                             )
                         )
                     }
 
                     ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED -> {
                         listener.invoke(
-                            AdvertiseStatus.ConnectionResultStatus(
-                                AdvertiseStatus.ConnectionResultStatus.REJECTED
+                            BaseStatus.ConnectionResultStatus(
+                                BaseStatus.ConnectionResultStatus.REJECTED
                             )
                         )
                     }
 
                     ConnectionsStatusCodes.STATUS_ERROR -> {
                         listener.invoke(
-                            AdvertiseStatus.ConnectionResultStatus(
-                                AdvertiseStatus.ConnectionResultStatus.ERROR
+                            BaseStatus.ConnectionResultStatus(
+                                BaseStatus.ConnectionResultStatus.ERROR
                             )
                         )
                     }

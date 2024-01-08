@@ -9,7 +9,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -17,9 +16,7 @@ import me.thekusch.hermes.core.common.flow.withHistory
 import me.thekusch.hermes.home.domain.HomeUseCase
 import me.thekusch.hermes.home.ui.component.CreateChatMethod
 import me.thekusch.messager.Hermes
-import me.thekusch.messager.controller.AdvertiseStatus
 import me.thekusch.messager.controller.BaseStatus
-import me.thekusch.messager.controller.DiscoveryStatus
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,7 +26,7 @@ class HomeViewModel @Inject constructor(
 
     private lateinit var hermes: Hermes
 
-    private val _latestChatConnectionInfo: MutableStateFlow<AdvertiseStatus.ConnectionInitiated?> =
+    private val _latestChatConnectionInfo: MutableStateFlow<BaseStatus.ConnectionInitiated?> =
         MutableStateFlow(null)
 
     private val _homeUiState: MutableStateFlow<HomeUiState> =
@@ -103,7 +100,7 @@ class HomeViewModel @Inject constructor(
 
     fun connectionAnswer(
         answer: Boolean,
-        data: AdvertiseStatus.ConnectionInitiated,
+        data: BaseStatus.ConnectionInitiated,
         context: Context
     ) {
         if (answer) {
@@ -117,44 +114,26 @@ class HomeViewModel @Inject constructor(
     private suspend fun hermesStateMapper(hermesState: BaseStatus) {
         when (hermesState) {
             is BaseStatus.WavingStarting -> {
-                if (hermesState is AdvertiseStatus.StartFinishedWithError) {
+                if (hermesState is BaseStatus.StartFinishedWithError) {
                     _errorState.value = hermesState.exception.localizedMessage.orEmpty()
 
                 }
-                if (hermesState is DiscoveryStatus.StartFinishedWithError) {
-                    _errorState.value = hermesState.exception.localizedMessage.orEmpty()
-                }
-                if (hermesState is DiscoveryStatus.StartFinishedWithSuccess) {
-                    _homeUiState.value = HomeUiState.CreateChat(CreateChatMethod.DISCOVER)
-                }
-                if (hermesState is AdvertiseStatus.StartFinishedWithSuccess) {
+
+                if (hermesState is BaseStatus.StartFinishedWithSuccess) {
                     _homeUiState.value = HomeUiState.CreateChat(CreateChatMethod.ADVERTISE)
                 }
             }
 
             is BaseStatus.WavingMatchDetecting -> {
-                if (hermesState is AdvertiseStatus.ConnectionResultStatus) {
+                if (hermesState is BaseStatus.ConnectionResultStatus) {
 
-                    if (hermesState.result == AdvertiseStatus.ConnectionResultStatus.CONNECTED) {
+                    if (hermesState.result == BaseStatus.ConnectionResultStatus.CONNECTED) {
                         homeUseCase.createNewChat(
                             _latestChatConnectionInfo.value!!.endpointId,
                             _latestChatConnectionInfo.value!!.endpointName
                         )
                     }
-                    if (hermesState.result == AdvertiseStatus.ConnectionResultStatus.ERROR) {
-                        _errorState.value = "Unexpted error happen please try later"
-                    }
-                }
-
-                if (hermesState is DiscoveryStatus.ConnectionResultStatus) {
-
-                    if (hermesState.result == AdvertiseStatus.ConnectionResultStatus.CONNECTED) {
-                        homeUseCase.createNewChat(
-                            _latestChatConnectionInfo.value!!.endpointId,
-                            _latestChatConnectionInfo.value!!.endpointName
-                        )
-                    }
-                    if (hermesState.result == AdvertiseStatus.ConnectionResultStatus.ERROR) {
+                    if (hermesState.result == BaseStatus.ConnectionResultStatus.ERROR) {
                         _errorState.value = "Unexpted error happen please try later"
                     }
                 }

@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import me.thekusch.hermes.R
 import me.thekusch.hermes.ui.theme.Error
 import me.thekusch.hermes.ui.theme.Success
-import me.thekusch.messager.controller.AdvertiseStatus
 import me.thekusch.messager.controller.BaseStatus
 
 enum class CreateChatMethod {
@@ -57,7 +56,7 @@ enum class CreateChatMethod {
 private fun ConnectionRequest(
     onConnectionAnswer: (
         accept: Boolean,
-        connectionData: AdvertiseStatus.ConnectionInitiated
+        connectionData: BaseStatus.ConnectionInitiated
     ) -> Unit
 ) {
 
@@ -66,9 +65,9 @@ private fun ConnectionRequest(
 @Composable
 private fun CreateChatWithAdvertise(
     modifier: Modifier = Modifier,
-    advertiseStatus: AdvertiseStatus,
+    advertiseStatus: BaseStatus,
     onDismiss: () -> Unit,
-    onConnectionAnswer: (accept: Boolean, data: AdvertiseStatus.ConnectionInitiated) -> Unit,
+    onConnectionAnswer: (accept: Boolean, data: BaseStatus.ConnectionInitiated) -> Unit,
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
@@ -85,12 +84,11 @@ private fun CreateChatWithAdvertise(
         }
 
         AnimatedVisibility(
-            visible = advertiseStatus is BaseStatus.WavingMatchDetecting &&
-                    advertiseStatus is AdvertiseStatus.ConnectionInitiated,
+            visible =  advertiseStatus is BaseStatus.ConnectionInitiated,
             enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) + expandIn(),
             exit = fadeOut(),
         ) {
-            val data = advertiseStatus as AdvertiseStatus.ConnectionInitiated
+            val data = advertiseStatus as BaseStatus.ConnectionInitiated
             Column {
                 Text(
                     text = "User: ${data.endpointName} wants to meet you",
@@ -174,12 +172,12 @@ fun CreateChat(
     onDismiss: () -> Unit,
     onConnectionAnswer: (
         accept: Boolean,
-        connectionData: AdvertiseStatus.ConnectionInitiated
+        connectionData: BaseStatus.ConnectionInitiated
     ) -> Unit
 ) {
     if (selectedMethod == CreateChatMethod.ADVERTISE) {
         CreateChatWithAdvertise(
-            advertiseStatus = hermesState as AdvertiseStatus,
+            advertiseStatus = hermesState,
             onDismiss = onDismiss,
             onConnectionAnswer = onConnectionAnswer
         )
