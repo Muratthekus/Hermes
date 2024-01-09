@@ -34,8 +34,8 @@ data class ChatParticipant(
 
 @Entity(tableName = "user_chat_cross_ref", primaryKeys = ["userId", "chatId"])
 data class UserChatCrossRef(
-    val userId: Long,
-    val chatId: Long
+    val userId: String,
+    val chatId: String
 )
 
 data class ChatWithParticipants(

@@ -2,6 +2,7 @@ package me.thekusch.hermes.home.data
 
 import me.thekusch.hermes.core.datasource.local.CoreLocalDataSource
 import me.thekusch.hermes.core.datasource.local.room.tables.ChatEntity
+import me.thekusch.hermes.core.datasource.local.room.tables.ChatParticipant
 import javax.inject.Inject
 
 class ChatRepository @Inject constructor(
@@ -12,7 +13,10 @@ class ChatRepository @Inject constructor(
         return coreLocalDataSource.getChatHistory()
     }
 
-    suspend fun createNewChat(chatEntity: ChatEntity) {
-        coreLocalDataSource.createNewChat(chatEntity)
+    suspend fun createNewChat(
+        chatEntity: ChatEntity,
+        chatParticipant: List<ChatParticipant>
+    ) {
+        coreLocalDataSource.createNewChat(chatEntity,chatParticipant)
     }
 }

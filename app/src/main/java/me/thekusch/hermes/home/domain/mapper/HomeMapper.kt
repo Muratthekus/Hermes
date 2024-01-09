@@ -1,6 +1,8 @@
 package me.thekusch.hermes.home.domain.mapper
 
 import me.thekusch.hermes.core.datasource.local.room.tables.ChatEntity
+import me.thekusch.hermes.core.datasource.local.room.tables.ChatParticipant
+import me.thekusch.hermes.core.domain.model.User
 import me.thekusch.hermes.home.domain.model.Chat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -29,6 +31,29 @@ class HomeMapper @Inject constructor() {
             updatedAt = System.currentTimeMillis(),
             slug = endpointName
         )
+    }
+
+    fun mapOnNewChatParticipant(
+        user: User,
+        endpointId: String,
+        endpointName: String
+    ): List<ChatParticipant> {
+        return buildList {
+            add(
+                ChatParticipant(
+                    id = user.id,
+                    name = user.name,
+                    email = user.email
+                )
+            )
+            add(
+                ChatParticipant(
+                    id = endpointId,
+                    name = endpointName.removeSurrounding("\""),
+                    email = null
+                )
+            )
+        }
     }
 
     private fun convertTimestampToString(timestamp: Long): String {

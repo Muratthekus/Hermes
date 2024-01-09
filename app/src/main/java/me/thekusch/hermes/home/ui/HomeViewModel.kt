@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.thekusch.hermes.core.common.flow.withHistory
+import me.thekusch.hermes.core.domain.model.User
 import me.thekusch.hermes.home.domain.HomeUseCase
 import me.thekusch.hermes.home.ui.component.CreateChatMethod
 import me.thekusch.messager.Hermes
@@ -26,6 +27,8 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private lateinit var hermes: Hermes
+
+    private var user: User? = null
 
     private var selectedMethod: CreateChatMethod? = null
 
@@ -64,17 +67,21 @@ class HomeViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.Lazily, HomeState())
 
-    //TODO(murat) save if user rejected or accepted requests, observe permission changes
+    //TODO(murat) observe permission changes
     // handle context storage in Hermes, handle message encryption
+    // add connection rejected&error states
     fun initHermes(hermes: Hermes) {
         viewModelScope.launch(homeExceptionHandler) {
-            val user = async { homeUseCase.getCurrentUser() }.await()
+            if (this@HomeViewModel::hermes.isInitialized)
+                return@launch
+
+            user = async { homeUseCase.getCurrentUser() }.await()
             requireNotNull(user) { "User record can not be found thus Hermes couldn't initialize" }
 
             this@HomeViewModel.hermes = hermes
             this@HomeViewModel.hermes.apply {
                 build()
-                setUsername(user.name)
+                setUsername(user?.name ?: " ")
                 advertiseStatusListener = {
                     _hermesState.value = it
                 }
@@ -146,8 +153,11 @@ class HomeViewModel @Inject constructor(
                     if (hermesState.result == BaseStatus.ConnectionResultStatus.CONNECTED) {
                         homeUseCase.createNewChat(
                             _latestChatConnectionInfo.value!!.endpointId,
-                            _latestChatConnectionInfo.value!!.endpointName
+                            _latestChatConnectionInfo.value!!.endpointName,
+                            user
                         )
+                        hermes.disconnect()
+                        getChatHistory()
                     }
                     if (hermesState.result == BaseStatus.ConnectionResultStatus.ERROR) {
                         _errorState.value = "Unexpected error happen please try later"

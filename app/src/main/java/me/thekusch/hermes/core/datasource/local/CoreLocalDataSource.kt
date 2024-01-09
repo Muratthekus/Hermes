@@ -10,6 +10,7 @@ import me.thekusch.hermes.core.datasource.local.room.dao.UserDao
 import me.thekusch.hermes.core.datasource.local.room.tables.ChatEntity
 import me.thekusch.hermes.core.datasource.local.room.tables.ChatParticipant
 import me.thekusch.hermes.core.datasource.local.room.tables.MessageEntity
+import me.thekusch.hermes.core.datasource.local.room.tables.UserChatCrossRef
 import me.thekusch.hermes.core.datasource.local.room.tables.UserInfoEntity
 import javax.inject.Inject
 
@@ -32,8 +33,22 @@ class CoreLocalDataSource @Inject constructor(
         return chatDao.getChats()
     }
 
-    suspend fun createNewChat(chatEntity: ChatEntity) {
-        chatDao.createNewChat(chatEntity)
+    suspend fun createNewChat(
+        chatEntity: ChatEntity,
+        chatParticipants: List<ChatParticipant>
+    ) {
+        withContext(Dispatchers.IO) {
+            dataBase.withTransaction {
+                chatDao.createNewChat(chatEntity)
+
+                val chatId = chatEntity.id
+                chatParticipants.forEach {
+                    chatDao.insertUserToChatCrossRef(
+                        UserChatCrossRef(it.id, chatId)
+                    )
+                }
+            }
+        }
     }
 
     suspend fun getChatMessagesWithCleanup(chatId: String): List<MessageEntity>? {

@@ -14,6 +14,7 @@ import com.google.android.gms.nearby.connection.PayloadCallback
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate
 import com.google.android.gms.nearby.connection.Strategy
 import me.thekusch.messager.DiscoveryStatusListener
+import me.thekusch.messager.PayloadListener
 import me.thekusch.messager.datasource.LocalDataSource
 
 
@@ -21,6 +22,7 @@ internal class Discovery {
 
     private var strategy = Strategy.P2P_POINT_TO_POINT
     lateinit var listener: DiscoveryStatusListener
+    var payloadListener: PayloadListener? = null
     private val localDataSource = LocalDataSource
 
     internal fun disconnect(context: Context) {
@@ -70,6 +72,15 @@ internal class Discovery {
     ) {
         Nearby.getConnectionsClient(context)
             .rejectConnection(endpointId)
+    }
+
+    internal fun sendTextMessages(
+        context: Context,
+        endpointId: String,
+        message: ByteArray
+    ) {
+        val payload = Payload.fromBytes(message)
+        Nearby.getConnectionsClient(context).sendPayload(endpointId,payload)
     }
 
     internal fun startDiscovery(
@@ -169,7 +180,10 @@ internal class Discovery {
     private fun getPayloadCallBack(): PayloadCallback =
         object : PayloadCallback() {
             override fun onPayloadReceived(p0: String, p1: Payload) {
-                //TODO("Not yet implemented")
+                // p0 is endpoint id
+                if (p1.type == Payload.Type.BYTES) {
+                    val receivedBytes: ByteArray? = p1.asBytes()
+                }
             }
 
             override fun onPayloadTransferUpdate(p0: String, p1: PayloadTransferUpdate) {

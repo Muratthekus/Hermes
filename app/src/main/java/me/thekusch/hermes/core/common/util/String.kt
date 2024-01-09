@@ -1,12 +1,12 @@
 package me.thekusch.hermes.core.common.util
 
 fun String.shortenString(): String {
-
-    val parts = this.split(" ")
+    val formatted = this.removeSurrounding("\"")
+    val parts = formatted.split(" ")
     return if (parts.size == 2) {
         val firstName = parts[0]
         val lastName = parts[1]
-        "${firstName.getOrNull(1)}${lastName.first()}"
+        "${firstName.first()}${lastName.first()}"
     } else {
         this
     }

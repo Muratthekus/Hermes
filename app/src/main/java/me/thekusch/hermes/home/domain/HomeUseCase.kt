@@ -29,10 +29,14 @@ class HomeUseCase @Inject constructor(
     suspend fun createNewChat(
         endpointId: String,
         endpointName: String,
+        user: User?
     ) {
-        chatRepository.createNewChat(
-            homeMapper.mapOnCreateNewChat(endpointId, endpointName)
-        )
+        user?.let {
+            chatRepository.createNewChat(
+                homeMapper.mapOnCreateNewChat(endpointId, endpointName),
+                homeMapper.mapOnNewChatParticipant(it,endpointId, endpointName)
+            )
+        }
     }
 
     suspend fun getCurrentUser(): User? {

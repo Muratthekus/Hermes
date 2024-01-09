@@ -12,6 +12,7 @@ import com.google.android.gms.nearby.connection.PayloadCallback
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate
 import com.google.android.gms.nearby.connection.Strategy
 import me.thekusch.messager.AdvertiseStatusListener
+import me.thekusch.messager.PayloadListener
 import me.thekusch.messager.datasource.LocalDataSource
 
 
@@ -19,6 +20,7 @@ internal class Advertise {
 
     private var strategy = Strategy.P2P_POINT_TO_POINT
     lateinit var listener: AdvertiseStatusListener
+    var payloadListener: PayloadListener? = null
     private val localDataSource = LocalDataSource
 
     internal fun disconnect(context: Context) {
@@ -36,6 +38,15 @@ internal class Advertise {
     ) {
         val connectionsClient = Nearby.getConnectionsClient(context)
         connectionsClient.stopAdvertising()
+    }
+
+    internal fun sendTextMessages(
+        context: Context,
+        endpointId: String,
+        message: ByteArray
+    ) {
+        val payload = Payload.fromBytes(message)
+        Nearby.getConnectionsClient(context).sendPayload(endpointId,payload)
     }
 
     internal fun startAdvertising(
