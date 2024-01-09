@@ -8,6 +8,7 @@ import me.thekusch.hermes.core.datasource.local.room.dao.ChatDao
 import me.thekusch.hermes.core.datasource.local.room.dao.MessageDao
 import me.thekusch.hermes.core.datasource.local.room.dao.UserDao
 import me.thekusch.hermes.core.datasource.local.room.tables.ChatEntity
+import me.thekusch.hermes.core.datasource.local.room.tables.ChatParticipant
 import me.thekusch.hermes.core.datasource.local.room.tables.MessageEntity
 import me.thekusch.hermes.core.datasource.local.room.tables.UserInfoEntity
 import javax.inject.Inject
@@ -48,7 +49,7 @@ class CoreLocalDataSource @Inject constructor(
         }
     }
 
-    suspend fun getChatParticipants(chatId: String): List<UserInfoEntity>? {
+    suspend fun getChatParticipants(chatId: String): List<ChatParticipant>? {
         return withContext(Dispatchers.IO) {
             dataBase.withTransaction {
                 chatDao.getChatParticipants(chatId)?.participants

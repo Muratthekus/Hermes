@@ -24,6 +24,14 @@ data class ChatMessages(
     val messages: List<MessageEntity>
 )
 
+
+@Entity(tableName = "chatParticipant")
+data class ChatParticipant(
+    @PrimaryKey val id: String,
+    val email: String?,
+    val name: String,
+)
+
 @Entity(tableName = "user_chat_cross_ref", primaryKeys = ["userId", "chatId"])
 data class UserChatCrossRef(
     val userId: Long,
@@ -35,12 +43,12 @@ data class ChatWithParticipants(
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
-        entity = UserInfoEntity::class,
+        entity = ChatParticipant::class,
         associateBy = Junction(
             value = UserChatCrossRef::class,
             parentColumn = "chatId",
             entityColumn = "userId"
         )
     )
-    val participants: List<UserInfoEntity>
+    val participants: List<ChatParticipant>
 )
