@@ -32,8 +32,7 @@ class HomeViewModel @Inject constructor(
 
     private var selectedMethod: CreateChatMethod? = null
 
-    private val _latestChatConnectionInfo: MutableStateFlow<BaseStatus.ConnectionInitiated?> =
-        MutableStateFlow(null)
+    private var latestChatConnectionInfo: BaseStatus.ConnectionInitiated? = null
 
     private val _homeUiState: MutableStateFlow<HomeUiState> =
         MutableStateFlow(HomeUiState.Init)
@@ -69,7 +68,6 @@ class HomeViewModel @Inject constructor(
 
     //TODO(murat) observe permission changes
     // handle context storage in Hermes, handle message encryption
-    // add connection rejected&error states
     fun initHermes(hermes: Hermes) {
         viewModelScope.launch(homeExceptionHandler) {
             if (this@HomeViewModel::hermes.isInitialized)
@@ -81,7 +79,7 @@ class HomeViewModel @Inject constructor(
             this@HomeViewModel.hermes = hermes
             this@HomeViewModel.hermes.apply {
                 build()
-                setUsername(user?.name ?: " ")
+                setUsername(user!!.name)
                 advertiseStatusListener = {
                     _hermesState.value = it
                 }
@@ -127,7 +125,7 @@ class HomeViewModel @Inject constructor(
     ) {
         if (answer) {
             hermes.acceptConnection(data.endpointId, context)
-            _latestChatConnectionInfo.value = data
+            latestChatConnectionInfo = data
             return
         }
         hermes.rejectConnection(data.endpointId, context)
@@ -152,15 +150,31 @@ class HomeViewModel @Inject constructor(
 
                     if (hermesState.result == BaseStatus.ConnectionResultStatus.CONNECTED) {
                         homeUseCase.createNewChat(
-                            _latestChatConnectionInfo.value!!.endpointId,
-                            _latestChatConnectionInfo.value!!.endpointName,
+                            latestChatConnectionInfo!!.endpointId,
+                            latestChatConnectionInfo!!.endpointName,
                             user
                         )
                         hermes.disconnect()
                         getChatHistory()
                     }
+                    if (hermesState.result == BaseStatus.ConnectionResultStatus.REJECTED) {
+                        _errorState.value = "Connection rejected, you can try other users"
+
+                        if (selectedMethod == CreateChatMethod.DISCOVER)
+                            latestChatConnectionInfo?.endpointId?.let { endpoint ->
+                                _hermesState.value =
+                                    BaseStatus.EndpointLost(endpoint)
+                            } ?: kotlin.run {
+                                _hermesState.value = BaseStatus.StartFinishedWithSuccess
+                            }
+                        else {
+                            _hermesState.value = BaseStatus.StartFinishedWithSuccess
+                        }
+                    }
+
                     if (hermesState.result == BaseStatus.ConnectionResultStatus.ERROR) {
                         _errorState.value = "Unexpected error happen please try later"
+                        _hermesState.value = BaseStatus.StartFinishedWithSuccess
                     }
                 }
             }

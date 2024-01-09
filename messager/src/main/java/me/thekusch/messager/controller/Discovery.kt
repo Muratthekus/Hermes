@@ -183,6 +183,7 @@ internal class Discovery {
                 // p0 is endpoint id
                 if (p1.type == Payload.Type.BYTES) {
                     val receivedBytes: ByteArray? = p1.asBytes()
+                    payloadListener?.invoke(receivedBytes?.toString())
                 }
             }
 

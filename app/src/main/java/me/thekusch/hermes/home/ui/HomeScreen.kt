@@ -117,7 +117,7 @@ class HomeScreen : Fragment() {
                             textAlign = TextAlign.Center
                         )
 
-                        if (!showCreateConnection)
+                        if (homeState.uiState.isCreateChat().not())
                             IconButton(onClick = { setShowCreateConnection(true) }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.create_chat),

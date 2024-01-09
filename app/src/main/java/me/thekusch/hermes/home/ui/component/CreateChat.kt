@@ -63,6 +63,8 @@ private fun ConnectionRequest(
         connectionData: BaseStatus.ConnectionInitiated
     ) -> Unit
 ) {
+    if ((status is BaseStatus.ConnectionInitiated).not())
+        return
     AnimatedVisibility(
         visible = status is BaseStatus.ConnectionInitiated,
         enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) + expandIn(),
@@ -190,7 +192,7 @@ private fun CreateSearchWithDiscover(
     ) {
 
         AnimatedVisibility(
-            visible = discoveryStatus is BaseStatus.WavingStarting,
+            visible = endpointList.isEmpty() && discoveryStatus is BaseStatus.WavingStarting,
             enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) + expandIn(),
             exit = fadeOut(),
         ) {
@@ -216,7 +218,8 @@ private fun CreateSearchWithDiscover(
         }
 
         AnimatedVisibility(
-            visible = endpointList.isNotEmpty() && (discoveryStatus is BaseStatus.ConnectionInitiated).not(),
+            visible = endpointList.isNotEmpty() &&
+                    (discoveryStatus is BaseStatus.ConnectionInitiated).not(),
             enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) + expandIn(),
             exit = fadeOut()
         ) {

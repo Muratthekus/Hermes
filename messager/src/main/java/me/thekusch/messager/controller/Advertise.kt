@@ -146,7 +146,11 @@ internal class Advertise {
     private fun getPayloadCallBack(): PayloadCallback =
         object : PayloadCallback() {
             override fun onPayloadReceived(p0: String, p1: Payload) {
-                //TODO("Not yet implemented")
+                // p0 is endpoint id
+                if (p1.type == Payload.Type.BYTES) {
+                    val receivedBytes: ByteArray? = p1.asBytes()
+                    payloadListener?.invoke(receivedBytes?.toString())
+                }
             }
 
             override fun onPayloadTransferUpdate(p0: String, p1: PayloadTransferUpdate) {

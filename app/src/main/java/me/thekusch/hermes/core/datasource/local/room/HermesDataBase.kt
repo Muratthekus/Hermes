@@ -6,6 +6,7 @@ import me.thekusch.hermes.core.datasource.local.room.dao.ChatDao
 import me.thekusch.hermes.core.datasource.local.room.dao.MessageDao
 import me.thekusch.hermes.core.datasource.local.room.dao.UserDao
 import me.thekusch.hermes.core.datasource.local.room.tables.ChatEntity
+import me.thekusch.hermes.core.datasource.local.room.tables.ChatParticipant
 import me.thekusch.hermes.core.datasource.local.room.tables.MessageEntity
 import me.thekusch.hermes.core.datasource.local.room.tables.UserChatCrossRef
 import me.thekusch.hermes.core.datasource.local.room.tables.UserInfoEntity
@@ -15,7 +16,8 @@ import me.thekusch.hermes.core.datasource.local.room.tables.UserInfoEntity
         UserInfoEntity::class,
         MessageEntity::class,
         ChatEntity::class,
-        UserChatCrossRef::class
+        UserChatCrossRef::class,
+        ChatParticipant::class
     ],
     version = 1
 )

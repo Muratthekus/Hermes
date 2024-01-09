@@ -38,16 +38,16 @@ class CoreLocalDataSource @Inject constructor(
         chatParticipants: List<ChatParticipant>
     ) {
         withContext(Dispatchers.IO) {
-            dataBase.withTransaction {
-                chatDao.createNewChat(chatEntity)
-
-                val chatId = chatEntity.id
-                chatParticipants.forEach {
-                    chatDao.insertUserToChatCrossRef(
-                        UserChatCrossRef(it.id, chatId)
-                    )
-                }
-            }
+            chatDao.createNewChat(chatEntity)
+            val chatId = chatEntity.id
+            val first = chatParticipants.first()
+            val second = chatParticipants.last()
+            chatDao.insertUserToChatCrossRef(
+                UserChatCrossRef(first.id, chatId)
+            )
+            chatDao.insertUserToChatCrossRef(
+                UserChatCrossRef(second.id, chatId)
+            )
         }
     }
 

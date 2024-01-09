@@ -14,7 +14,7 @@ import me.thekusch.messager.util.Role
 
 internal typealias DiscoveryStatusListener = ((BaseStatus) -> Unit)
 internal typealias AdvertiseStatusListener = ((BaseStatus) -> Unit)
-internal typealias PayloadListener = ((String) -> Unit)
+internal typealias PayloadListener = ((String?) -> Unit)
 
 public class Hermes private constructor(
     private val activity: FragmentActivity,
@@ -54,6 +54,24 @@ public class Hermes private constructor(
 
             Role.DISCOVER -> {
                 discovery.sendTextMessages(activity, endpointId, message.toByteArray())
+            }
+
+            else -> {
+                // no-op
+            }
+        }
+    }
+
+    public fun onReceiveTextMessage(
+        onMessageReceived: (String?) -> Unit
+    ) {
+        when (role) {
+            Role.ADVERTISE -> {
+                advertise.payloadListener = onMessageReceived
+            }
+
+            Role.DISCOVER -> {
+                discovery.payloadListener = onMessageReceived
             }
 
             else -> {
