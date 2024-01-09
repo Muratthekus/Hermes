@@ -194,19 +194,25 @@ private fun CreateSearchWithDiscover(
             enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) + expandIn(),
             exit = fadeOut(),
         ) {
-            PulseLoading()
+            Column(
+                modifier = modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                PulseLoading()
 
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, start = 24.dp, end = 24.dp)
-                    .padding(bottom = 46.dp)
-                    .clickable { onDismiss() },
-                text = "Let's look very is everyone",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.subtitle1,
-                color = MaterialTheme.colors.onBackground
-            )
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp, start = 24.dp, end = 24.dp)
+                        .padding(bottom = 46.dp)
+                        .clickable { onDismiss() },
+                    text = "Let's look very is everyone",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.subtitle1,
+                    color = MaterialTheme.colors.onBackground
+                )
+            }
         }
 
         AnimatedVisibility(
@@ -215,7 +221,7 @@ private fun CreateSearchWithDiscover(
             exit = fadeOut()
         ) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.weight(5f),
                 state = lazyListState,
             ) {
                 items(endpointList, key = { it.endpointId }) { endpoint ->
@@ -231,6 +237,7 @@ private fun CreateSearchWithDiscover(
         if ((discoveryStatus is BaseStatus.Disconnected).not())
             Image(
                 modifier = Modifier
+                    .weight(1f)
                     .size(64.dp)
                     .padding(top = 12.dp)
                     .clickable { onDismiss() },

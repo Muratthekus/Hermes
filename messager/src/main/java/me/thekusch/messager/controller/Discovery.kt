@@ -38,7 +38,7 @@ internal class Discovery {
             .stopDiscovery()
     }
 
-    public fun makeConnectionRequest(
+    internal fun makeConnectionRequest(
         context: Context,
         endpointId: String
     ) {
