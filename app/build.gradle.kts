@@ -73,6 +73,7 @@ dependencies {
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("androidx.security:security-crypto:1.0.0")
+    implementation("com.trendyol:medusa:0.10.4")
 
     implementation("androidx.room:room-runtime:2.5.0")
     implementation("androidx.room:room-ktx:2.5.0")

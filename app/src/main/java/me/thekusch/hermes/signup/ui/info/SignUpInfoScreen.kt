@@ -24,11 +24,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
@@ -41,19 +37,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import me.thekusch.hermes.R
+import me.thekusch.hermes.core.base.BaseActivity
+import me.thekusch.hermes.core.base.BaseFragment
+import me.thekusch.hermes.core.common.widget.getFieldIconTint
+import me.thekusch.hermes.core.common.widget.provideTextFieldColors
 import me.thekusch.hermes.signup.ui.otp.OtpInputScreen
 import me.thekusch.hermes.ui.theme.Error
 import me.thekusch.hermes.ui.theme.HermesTheme
-import me.thekusch.hermes.core.common.widget.getFieldIconTint
-import me.thekusch.hermes.core.common.widget.provideTextFieldColors
 
 @AndroidEntryPoint
-class SignUpInfoScreen : Fragment() {
+class SignUpInfoScreen : BaseFragment() {
 
     private lateinit var composeView: ComposeView
 
@@ -71,6 +68,9 @@ class SignUpInfoScreen : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        navigator.getNavigatorFromActivity(
+            (requireActivity() as BaseActivity).navigator
+        )
         composeView.setContent {
             HermesTheme {
                 VerificationScreen()
@@ -97,17 +97,9 @@ class SignUpInfoScreen : Fragment() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    IconButton(onClick = { /* TODO */ }) {
+                    IconButton(onClick = { navigator.goBack() }) {
                         Icon(
                             painter = painterResource(id = R.drawable.white_back_arrow),
-                            contentDescription = "show password",
-                            tint = getFieldIconTint()
-                        )
-                    }
-
-                    IconButton(onClick = { /* TODO */ }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.help_circle_outline),
                             contentDescription = "show password",
                             tint = getFieldIconTint()
                         )
@@ -116,13 +108,7 @@ class SignUpInfoScreen : Fragment() {
             }
         ) { paddingValues ->
             if (uiState == SignUpUiState.Success) {
-                activity?.supportFragmentManager?.beginTransaction()
-                    ?.replace(
-                        R.id.container,
-                        OtpInputScreen.newInstance(contentState.email)
-                    )
-                    ?.addToBackStack(null)
-                    ?.commit()
+                navigator.startFragment(OtpInputScreen.newInstance(contentState.email))
             }
             Box(
                 modifier = Modifier.fillMaxSize(),

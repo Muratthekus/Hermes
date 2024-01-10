@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,23 +34,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import me.thekusch.hermes.R
-import me.thekusch.hermes.signup.ui.info.UserInfo
-import me.thekusch.hermes.ui.theme.HermesTheme
+import me.thekusch.hermes.core.base.BaseActivity
+import me.thekusch.hermes.core.base.BaseFragment
 import me.thekusch.hermes.core.common.widget.OtpTextField
 import me.thekusch.hermes.core.common.widget.Timer
 import me.thekusch.hermes.core.common.widget.getFieldIconTint
 import me.thekusch.hermes.home.ui.HomeActivity
-import me.thekusch.hermes.home.ui.HomeScreen
-import me.thekusch.hermes.signup.ui.info.SignUpUiState
 import me.thekusch.hermes.ui.theme.Error
+import me.thekusch.hermes.ui.theme.HermesTheme
 
 @AndroidEntryPoint
-class OtpInputScreen : Fragment() {
+class OtpInputScreen : BaseFragment() {
 
     private lateinit var composeView: ComposeView
 
@@ -72,6 +69,9 @@ class OtpInputScreen : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        navigator.getNavigatorFromActivity(
+            (requireActivity() as BaseActivity).navigator
+        )
         composeView.setContent {
             HermesTheme {
                 OtpInputContent()
@@ -98,7 +98,7 @@ class OtpInputScreen : Fragment() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    IconButton(onClick = { /* TODO */ }) {
+                    IconButton(onClick = { navigator.goBack() }) {
                         Icon(
                             painter = painterResource(id = R.drawable.white_back_arrow),
                             contentDescription = "show password",
@@ -128,7 +128,7 @@ class OtpInputScreen : Fragment() {
                 }
 
                 if (uiState == OtpInputUiState.Success) {
-                    requireActivity().startActivity(
+                    startActivity(
                         Intent(
                             requireContext(),
                             HomeActivity::class.java

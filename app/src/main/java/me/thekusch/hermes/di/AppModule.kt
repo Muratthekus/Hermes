@@ -17,6 +17,12 @@ import me.thekusch.hermes.core.datasource.local.room.HermesDataBase
 import me.thekusch.hermes.core.datasource.local.room.dao.ChatDao
 import me.thekusch.hermes.core.datasource.local.room.dao.MessageDao
 import me.thekusch.hermes.core.datasource.local.room.dao.UserDao
+import me.thekusch.hermes.core.navigator.DefaultFragmentNavigatorQualifier
+import me.thekusch.hermes.core.navigator.DefaultNavigatorQualifier
+import me.thekusch.hermes.core.navigator.HermesFragmentNavigator
+import me.thekusch.hermes.core.navigator.HermesFragmentNavigatorImpl
+import me.thekusch.hermes.core.navigator.HermesNavigator
+import me.thekusch.hermes.core.navigator.HermesNavigatorImpl
 import javax.inject.Singleton
 
 @Module
@@ -45,6 +51,18 @@ class AppModule {
             HermesDataBase::class.java,
             "app_database"
         ).build()
+    }
+
+    @Provides
+    @DefaultNavigatorQualifier
+    fun provideDefaultNavigator(): HermesNavigator {
+        return HermesNavigatorImpl()
+    }
+
+    @Provides
+    @DefaultFragmentNavigatorQualifier
+    fun provideFragmentNavigator(): HermesFragmentNavigator {
+        return HermesFragmentNavigatorImpl()
     }
 
     @Provides

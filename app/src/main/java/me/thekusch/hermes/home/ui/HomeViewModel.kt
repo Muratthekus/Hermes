@@ -68,6 +68,7 @@ class HomeViewModel @Inject constructor(
 
     //TODO(murat) observe permission changes
     // handle context storage in Hermes, handle message encryption
+    // add chat delete
     fun initHermes(hermes: Hermes) {
         viewModelScope.launch(homeExceptionHandler) {
             if (this@HomeViewModel::hermes.isInitialized)

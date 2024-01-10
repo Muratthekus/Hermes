@@ -34,20 +34,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 import me.thekusch.hermes.R
-import me.thekusch.hermes.ui.theme.HermesTheme
+import me.thekusch.hermes.core.base.BaseActivity
+import me.thekusch.hermes.core.base.BaseFragment
 import me.thekusch.hermes.core.common.widget.HorizontalPager
 import me.thekusch.hermes.login.ui.LoginScreen
 import me.thekusch.hermes.signup.ui.info.SignUpInfoScreen
+import me.thekusch.hermes.ui.theme.HermesTheme
 
 @ExperimentalPagerApi
 @AndroidEntryPoint
-class IntroFragment : Fragment() {
+class IntroFragment : BaseFragment() {
 
     private lateinit var composeView: ComposeView
 
@@ -57,6 +58,9 @@ class IntroFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        navigator.getNavigatorFromActivity(
+            (requireActivity() as BaseActivity).navigator
+        )
         // Inflate the layout for this fragment
         return ComposeView(requireContext()).also {
             composeView = it
@@ -146,11 +150,7 @@ class IntroFragment : Fragment() {
                         .fillMaxWidth()
                         .wrapContentHeight()
                         .clickable {
-                            activity?.supportFragmentManager
-                                ?.beginTransaction()
-                                ?.replace(R.id.container, LoginScreen.newInstance())
-                                ?.addToBackStack(null)
-                                ?.commit();
+                            navigator.startFragment(LoginScreen.newInstance())
                         }
                         .padding(bottom = 40.dp, start = 45.dp, end = 45.dp),
                     text = "Already have an account?",
@@ -166,10 +166,7 @@ class IntroFragment : Fragment() {
                         .height(52.dp),
                     shape = RoundedCornerShape(30.dp),
                     onClick = {
-                        activity?.supportFragmentManager?.beginTransaction()
-                            ?.replace(R.id.container, SignUpInfoScreen.newInstance())
-                            ?.addToBackStack(null)
-                            ?.commit();
+                        navigator.startFragment(SignUpInfoScreen.newInstance())
                     }) {
                     Text(
                         text = stringResource(id = R.string.intro_page_button),

@@ -1,13 +1,14 @@
 package me.thekusch.hermes.login.ui
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,17 +41,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import me.thekusch.hermes.R
+import me.thekusch.hermes.core.base.BaseActivity
+import me.thekusch.hermes.core.base.BaseFragment
 import me.thekusch.hermes.core.common.widget.getFieldIconTint
 import me.thekusch.hermes.core.common.widget.provideTextFieldColors
 import me.thekusch.hermes.home.ui.HomeActivity
-import me.thekusch.hermes.home.ui.HomeScreen
-import me.thekusch.hermes.signup.ui.info.SignUpUiState
-import me.thekusch.hermes.signup.ui.otp.OtpInputScreen
 import me.thekusch.hermes.ui.theme.Error
 import me.thekusch.hermes.ui.theme.HermesTheme
 
 @AndroidEntryPoint
-class LoginScreen: Fragment() {
+class LoginScreen: BaseFragment() {
 
     private lateinit var composeView: ComposeView
 
@@ -68,6 +68,9 @@ class LoginScreen: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        navigator.getNavigatorFromActivity(
+            (requireActivity() as BaseActivity).navigator
+        )
         composeView.setContent {
             HermesTheme {
                 LoginContent()
@@ -85,15 +88,24 @@ class LoginScreen: Fragment() {
 
         Scaffold(
             modifier = Modifier.background(MaterialTheme.colors.background),
-
+            topBar = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    IconButton(onClick = { navigator.goBack() }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.white_back_arrow),
+                            contentDescription = "show password",
+                            tint = getFieldIconTint()
+                        )
+                    }
+                }
+            }
         ) { paddingValues ->
             if (uiState == LoginUiState.Success) {
-                requireActivity().startActivity(
-                    Intent(
-                        requireContext(),
-                        HomeActivity::class.java
-                    )
-                )
+                startActivity(
+                    HomeActivity.newIntent(requireContext()))
                 requireActivity().finish()
             }
 
@@ -102,7 +114,10 @@ class LoginScreen: Fragment() {
                 contentAlignment = Alignment.Center
             ) {
                 if (uiState == LoginUiState.Loading) {
-                    Box(Modifier.fillMaxSize().zIndex(1f)) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .zIndex(1f)) {
                         CircularProgressIndicator(
                             Modifier.align(Alignment.Center)
                         )
