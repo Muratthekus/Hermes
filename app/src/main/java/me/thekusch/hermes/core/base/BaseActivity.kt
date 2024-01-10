@@ -1,7 +1,6 @@
 package me.thekusch.hermes.core.base
 
 import android.os.Bundle
-import android.os.PersistableBundle
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import me.thekusch.hermes.core.navigator.DefaultNavigatorQualifier
@@ -14,6 +13,9 @@ abstract class BaseActivity: AppCompatActivity() {
     @DefaultNavigatorQualifier
     lateinit var navigator: HermesNavigator
 
+    /**
+     * Children of BaseActivity must override this method if they want to handle back press
+     * */
     open var onBackPressedListener: () -> Unit = {
         finish()
     }
