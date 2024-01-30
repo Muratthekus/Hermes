@@ -1,18 +1,19 @@
 package me.thekusch.hermes.login
 
 import app.cash.turbine.test
-import io.mockk.*
+import com.google.common.truth.Truth
+import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import me.thekusch.hermes.core.datasource.local.model.Result
-import me.thekusch.hermes.login.domain.LoginUseCase
-import me.thekusch.hermes.login.ui.LoginViewModel
-import me.thekusch.hermes.util.TestDispatcherRule
-import com.google.common.truth.Truth
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import me.thekusch.hermes.core.datasource.local.model.Result
+import me.thekusch.hermes.login.domain.LoginUseCase
 import me.thekusch.hermes.login.ui.LoginUiState
+import me.thekusch.hermes.login.ui.LoginViewModel
+import me.thekusch.hermes.util.TestDispatcherRule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -68,7 +69,7 @@ class LoginViewModelTest {
         val errorMessage = "Login failed"
         val failResult = Result.Fail(Exception(errorMessage))
 
-        coEvery { loginUseCase.login(any(), any()) } returns flowOf(Result.Started,  failResult)
+        coEvery { loginUseCase.login(any(), any()) } returns flowOf(Result.Started, failResult)
 
         // Act
         viewModel.login(email, password)

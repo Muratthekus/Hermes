@@ -36,15 +36,18 @@ class OtpInputViewModel @Inject constructor(
         }
     }
 
-    fun verifyOtp(
-        email: String,
-        otp: String
-    ) {
+    fun resetUiState() {
         if (::verifyJob.isInitialized) {
             _otpUiState.value = OtpInputUiState.Init
             verifyJob.cancel()
         }
+    }
 
+    fun verifyOtp(
+        email: String,
+        otp: String
+    ) {
+        resetUiState()
         verifyJob = viewModelScope.launch(exceptionHandler) {
             otpUseCase.verifySignUp(email, otp).collectLatest {
                 when (it) {
